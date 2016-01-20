@@ -29,7 +29,7 @@ public class NetworkLayer extends Entita{
     protected LinkLayer linkLayer;
     protected double tempo_di_processamento;
     protected Object nodo;
-    
+    protected TransportLayer transportLayer;
     
     //Tabella di instradamento
     protected tabellaRouting myRoutingTable;
@@ -74,9 +74,10 @@ public class NetworkLayer extends Entita{
     }
     
     /**Utilizzo questo metodo per connettere la pila protocollare*/
-    public void connectNetworkLayer(LinkLayer linkLayer,Object nodo){
+    public void connectNetworkLayer(TransportLayer transportLayer,LinkLayer linkLayer,Object nodo){
         this.linkLayer = linkLayer;
         this.nodo = nodo;
+        this.transportLayer = transportLayer;
     }
 
     /**Viene gestito dalla classe che deve estendere il livello rete

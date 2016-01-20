@@ -28,7 +28,7 @@ public class LinkLayer extends Entita{
         super(s,"Link Layer");
         this.s = s;
         this.tempo_processamento = tempo_processamento;
-        this.netLayer = netLayer;
+        this.netLayer = null;
     }
     public void connectLinkLayer(physicalLayer phyLayer,NetworkLayer netLayer,Object nodo){
         this.nodo = nodo;

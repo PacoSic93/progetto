@@ -30,10 +30,10 @@ public class physicalLayer extends Entita {
         super(s,"Physical Layer");
         this.s = s;
         this.tempo_processamento_bit = tempo_processamento_bit;
-        this.nodo = nodo;
+        
     }
     
-    public void connectPhysicalLayer(LinkLayer linkLayer,Object nodo) {
+    public void connectPhysicalLayer(LinkLayer linkLayer, Object nodo) {
         this.linkLayer = linkLayer;
         this.nodo = nodo;
     }
@@ -66,7 +66,7 @@ public class physicalLayer extends Entita {
         //Invio il messaggio al box esterno che provvederà a mettere il messaggio sul canale fisico il quale poi invierà verso il nodo destinazione
         m.setDestinazione(nodo);
         m.saliPilaProtocollare = false;
-        m.setNextHop(m.getNodoDestinazione());
+//        m.setNextHop(m.getNodoDestinazione());
         s.insertMessage(m);
     }
     

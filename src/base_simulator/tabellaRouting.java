@@ -1,14 +1,15 @@
 package base_simulator;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
-class lineRouting
+
+class RoutingRow
 {
 	private int nodo_destinazione;
 	private int next_hop;
 	private double costo;
 	
-	public lineRouting(int nodo_destinazione, int next_hop, double costo)
+	public RoutingRow(int nodo_destinazione, int next_hop, double costo)
 	{
 		this.nodo_destinazione = nodo_destinazione;
 		this.next_hop = next_hop;
@@ -37,11 +38,11 @@ class lineRouting
 
 public class tabellaRouting
 {
-	private LinkedList<lineRouting> entries;
+	private ArrayList<RoutingRow> entries;
 	
 	public tabellaRouting()
 	{
-		entries = new LinkedList<lineRouting>();
+		entries = new ArrayList<RoutingRow>();
 	}
 	
 	/**
@@ -53,7 +54,7 @@ public class tabellaRouting
 	 */
 	public void addEntry(int nodo_destinazione, int next_hop, double costo)
 	{
-		lineRouting entry = new lineRouting(nodo_destinazione,next_hop,costo);
+		RoutingRow entry = new RoutingRow(nodo_destinazione,next_hop,costo);
 		
 		int pos = controllaPresenzaLinea(nodo_destinazione,next_hop);
 		

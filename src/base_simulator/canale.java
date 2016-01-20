@@ -20,9 +20,9 @@ public class canale extends Entita{
     /* Il nodo 1 � la sorgente del canale*/
     private Object nodo1;
     /*canale condiviso*/
-    private Vector<Object> nodiSorgente = new Vector<Object>();
+    private ArrayList<Object> nodiSorgente;
     /*il/i nodo2 rappresentano le uscite*/
-    private Vector<Object> nodo2;
+    private ArrayList<Object> nodo2;
     /*Capacita del canale in bps*/
     private double capacita;
     /*Indica la capacita allocata sul canale*/
@@ -53,8 +53,8 @@ public class canale extends Entita{
         this.capacitaAllocata = 0;
         nodo1 = new Object();
         //Da usare solo nel caso di canale condiviso -- nel nostro caso sul canale di Uplink
-        nodiSorgente = new Vector<Object>();
-        nodo2 = new Vector<Object>();
+        nodiSorgente = new ArrayList<Object>();
+        nodo2 = new ArrayList<Object>();
         /**il *8 indica la conversione da byte in bit del pacchetto*/
         this.dimensione_pacchetto = dimensione_pacchetto;
         tempo_di_trasmissione = 1000*(dimensione_pacchetto * 8)/capacita;
@@ -76,8 +76,8 @@ public class canale extends Entita{
         this.capacitaAllocata = 0;
         nodo1 = new Object();
         //Da usare solo nel caso di canale condiviso -- nel nostro caso sul canale di Uplink
-        nodiSorgente = new Vector<Object>();
-        nodo2 = new Vector<Object>();
+        nodiSorgente = new ArrayList<Object>();
+        nodo2 = new ArrayList<Object>();
         /**il *8 indica la conversione da byte in bit del pacchetto*/
         tempo_di_trasmissione = 1000*(dimensione_pacchetto * 8)/capacita;
         this.tempo_di_propagazione = tempo_di_propagazione;
@@ -86,13 +86,13 @@ public class canale extends Entita{
     public void setNodo1(Object nodo1){
         this.nodo1 = (Object)nodo1;
     }
-    public void setNodiSorgenti(Vector<Object> nodiSorgente)
+    public void setNodiSorgenti(ArrayList<Object> nodiSorgente)
     {
-        this.nodiSorgente = (Vector<Object>) nodiSorgente.clone();
+        this.nodiSorgente = (ArrayList<Object>) nodiSorgente.clone();
     }
    
-    public void setNodo2(Vector<Object> nodo2){
-        this.nodo2 = (Vector<Object>)nodo2.clone();
+    public void setNodo2(ArrayList<Object> nodo2){
+        this.nodo2 = (ArrayList<Object>)nodo2.clone();
     }
     
     /**
@@ -112,7 +112,7 @@ public class canale extends Entita{
         this.capacita = capacita;
         this.capacitaAllocata = 0;
         this.nodo1 = nodo1;
-        this.nodo2 = (Vector<Object>) nodo2.clone();
+        this.nodo2 = (ArrayList<Object>) nodo2.clone();
         tempo_di_trasmissione = 1000*(dimensione_pacchetto * 8)/capacita;
         this.tempo_di_propagazione = tempo_di_propagazione;
     }
@@ -134,11 +134,13 @@ public class canale extends Entita{
         this.capacita = capacita;
         this.capacitaAllocata = 0;
         this.nodo1 = nodo1;
-        this.nodo2 = new Vector<Object>();
-        this.nodo2.addElement(nodo2);
+        this.nodo2 = new ArrayList<Object>();
+        this.nodo2.add(nodo2);
         tempo_di_trasmissione = 1000*(dimensione_pacchetto * 8)/capacita;
         this.tempo_di_propagazione = tempo_di_propagazione;
     }
+    
+    
     
     
     public void Handler(Messaggi m){
@@ -159,7 +161,7 @@ public class canale extends Entita{
     
     public Object getNodo2at(int pos)
     {
-        return this.nodo2.elementAt(pos);
+        return this.nodo2.get(pos);
     }
     
     public int getSizeNodo2(){
@@ -178,6 +180,7 @@ public class canale extends Entita{
         
         //TODO - Da verificare questo controllo
         boolean isMessaggioAllocazione = false;
+/*        
         if(!m.isData && !isMessaggioAllocazione)
             m1.rate = capacita;
         if(isMessaggioAllocazione){
@@ -188,8 +191,10 @@ public class canale extends Entita{
             this.tempo_di_trasmissione = 1000*(dimensione_pacchetto * 8)/m.rate;
             m1.rate=m.rate;
         }
+*/        
         m1.shifta(this.tempo_di_trasmissione+this.tempo_di_propagazione);
         m1.setDestinazione(m1.getNextHop());
+        m1.saliPilaProtocollare = true;
         s.insertMessage(m1);
     }
     
@@ -203,7 +208,7 @@ public class canale extends Entita{
      * @param nodo
      */
     public void addNodoalCanale(Object nodo) {
-        this.nodo2.addElement(nodo);
+        this.nodo2.add(nodo);
     }
     
     /** 
@@ -213,10 +218,10 @@ public class canale extends Entita{
     public void addNodiSorgente(Object nodo){
         this.nodiSorgente.add(nodo);
     }
-    public LinkedList getNodiSorgenti(){
-        LinkedList ns = new LinkedList();
+    public ArrayList getNodiSorgenti(){
+        ArrayList ns = new ArrayList();
         for(int i = 0;i<nodiSorgente.size();i++)
-            ns.add(nodiSorgente.elementAt(i));
+            ns.add(nodiSorgente.get(i));
         return ns;
     }
     public double returnCapacita(){

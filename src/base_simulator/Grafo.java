@@ -151,7 +151,7 @@ public class Grafo {
             for(int i = 0;i<neighboors.size();i++) {
                //System.out.print("\nvalore delay arco i,j "+nodo_corrente+","+neighboors.elementAt(i));
                //System.out.print(" Valore :"+this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().elementAt(1));
-               double r_0 = this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().elementAt(1);
+               double r_0 = this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().get(1);
                double r = delay[nodo_corrente] + r_0;
                delay[neighboors.elementAt(i)] = r;
             }
@@ -223,7 +223,7 @@ public class Grafo {
         while(vicini.size()>0){
             
            for(int i = 0;i<neighboors.size();i++) {
-                costo[neighboors.elementAt(i)] += costo[nodo_corrente] + this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().elementAt(0);
+                costo[neighboors.elementAt(i)] += costo[nodo_corrente] + this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().get(0);
             }
            
            
@@ -290,8 +290,8 @@ public class Grafo {
              
            for(int i = 0;i<neighboors.size();i++) {
                int nodo_succ = 0;
-                if (this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().elementAt(2) < bandwidth) {
-                    bandwidth = this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().elementAt(2);    
+                if (this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().get(2) < bandwidth) {
+                    bandwidth = this.elementi.elementAt(nodo_corrente).elementAt(neighboors.elementAt(i)).getPesi().get(2);    
                     nodo_succ = neighboors.elementAt(i);
                 }
                 banda[nodo_succ]=bandwidth;
@@ -389,7 +389,7 @@ public class Grafo {
             for(int j = 0;j<this.n;j++){
                 if(elementi.elementAt(i).elementAt(j).getPesi().size()==0)
                     System.out.print(" 0");
-                else System.out.print(" "+elementi.elementAt(i).elementAt(j).getPesi().elementAt(0));
+                else System.out.print(" "+elementi.elementAt(i).elementAt(j).getPesi().get(0));
             }
             System.out.println();
          }
@@ -398,7 +398,7 @@ public class Grafo {
             for(int j = 0;j<this.n;j++){
                 if(elementi.elementAt(i).elementAt(j).getPesi().size()==0)
                     System.out.print(" 0");
-                else System.out.print(" "+elementi.elementAt(i).elementAt(j).getPesi().elementAt(1));
+                else System.out.print(" "+elementi.elementAt(i).elementAt(j).getPesi().get(1));
             }
             System.out.println();
          }
@@ -407,7 +407,7 @@ public class Grafo {
             for(int j = 0;j<this.n;j++){
                 if(elementi.elementAt(i).elementAt(j).getPesi().size()==0)
                     System.out.print(" 0");
-                else System.out.print(" "+elementi.elementAt(i).elementAt(j).getPesi().elementAt(2));
+                else System.out.print(" "+elementi.elementAt(i).elementAt(j).getPesi().get(2));
             }
             System.out.println();
         }
@@ -497,8 +497,8 @@ public class Grafo {
             
             for(int i = 0;i<vicini.size();i++){
                 
-                if((!visitati[vicini.elementAt(i)])&&(pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().elementAt(0)))<pesi[vicini.elementAt(i)])
-                    pesi[vicini.elementAt(i)] = pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().elementAt(0));
+                if((!visitati[vicini.elementAt(i)])&&(pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().get(0)))<pesi[vicini.elementAt(i)])
+                    pesi[vicini.elementAt(i)] = pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().get(0));
                     precedenti[vicini.elementAt(i)] = nodo_corrente;               
             }
             
@@ -558,8 +558,8 @@ public class Grafo {
             
             for(int i = 0;i<vicini.size();i++){
                 
-                if((!visitati[vicini.elementAt(i)])&&(pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().elementAt(1)))<pesi[vicini.elementAt(i)])
-                    pesi[vicini.elementAt(i)] = pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().elementAt(1));
+                if((!visitati[vicini.elementAt(i)])&&(pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().get(1)))<pesi[vicini.elementAt(i)])
+                    pesi[vicini.elementAt(i)] = pesi[nodo_corrente] + (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().get(1));
                     precedenti[vicini.elementAt(i)] = nodo_corrente;               
             }
             
@@ -619,8 +619,8 @@ public class Grafo {
             
             for(int i = 0;i<vicini.size();i++){
                 
-                if((!visitati[vicini.elementAt(i)])&&((this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().elementAt(2)))>pesi[vicini.elementAt(i)])
-                    pesi[vicini.elementAt(i)] = (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().elementAt(2));
+                if((!visitati[vicini.elementAt(i)])&&((this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().get(2)))>pesi[vicini.elementAt(i)])
+                    pesi[vicini.elementAt(i)] = (this.elementi.elementAt(nodo_corrente).elementAt(vicini.elementAt(i)).getPesi().get(2));
                     precedenti[vicini.elementAt(i)] = nodo_corrente;               
             }
             

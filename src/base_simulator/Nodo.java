@@ -22,32 +22,37 @@ public class Nodo extends Entita{
     protected int id_nodo;
     
     //Canali connessi alle interfacce
-    protected Vector<canale> myChannels;
+    protected ArrayList<canale> myChannels;
     
     
     protected physicalLayer myPhyLayer;
     protected LinkLayer myLinkLayer;
     protected NetworkLayer myNetLayer;
+    protected TransportLayer myTransportLayer;
     
     //Grafo della rete
     protected Grafo network;
     
-    public Nodo(scheduler s,int id_nodo,physicalLayer myPhyLayer,LinkLayer myLinkLayer,NetworkLayer myNetLayer,Grafo network,String tipo){
+    public Nodo(scheduler s,int id_nodo,
+            physicalLayer myPhyLayer,LinkLayer myLinkLayer,NetworkLayer myNetLayer,TransportLayer myTransportLayer,
+            Grafo network,String tipo){
         super(s,tipo);
         this.s = s;
         this.id_nodo = id_nodo;
-        myChannels = new Vector<canale>();
+        myChannels = new ArrayList<canale>();
         this.network = network;
        
         
         this.myNetLayer = myNetLayer;
         this.myLinkLayer = myLinkLayer;
         this.myPhyLayer = myPhyLayer;
+        this.myTransportLayer = myTransportLayer;
         
         /*Connetto i tre livelli della pila tra loro e con il nodo*/
         this.myPhyLayer.connectPhysicalLayer(this.myLinkLayer,this);
         this.myLinkLayer.connectLinkLayer(this.myPhyLayer,this.myNetLayer,this);
-        this.myNetLayer.connectNetworkLayer(this.myLinkLayer,this);
+        this.myNetLayer.connectNetworkLayer(this.myTransportLayer,this.myLinkLayer,this);
+        this.myTransportLayer.connectTransportLayer(this.myNetLayer, this);
     }
     
     /**Questo netodo andrà esteso dalle classi figlie e serve per gestire
@@ -72,9 +77,9 @@ public class Nodo extends Entita{
     
     /**setto i canali di uscita del nodo
      */
-    public void setChannels(Vector<canale> channels) {
+    public void setChannels(ArrayList<canale> channels) {
         for(int i = 0;i<=channels.size();i++)
-            this.myChannels.addElement(channels.elementAt(i));
+            this.myChannels.add(channels.get(i));
     }
     
     private void inviaMessaggioACanale(Messaggi m) {
@@ -86,6 +91,11 @@ public class Nodo extends Entita{
     }
     public Grafo getNetwork(){
         return this.network;
+    }
+    
+    public canale getChannel(int channelId)
+    {
+        return myChannels.get(channelId);
     }
 
     

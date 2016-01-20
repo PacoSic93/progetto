@@ -76,13 +76,13 @@ public class netLayer extends NetworkLayer{
             System.out.println("nodo host"+((nodo_host)this.nodo).getId()+" ha ricevuto il msg di infoServices di tipo "+((nodo_host)this.nodo).getTipoHost());
             if(((nodo_host)nodo).isAttivatoRicezione()){
                 //Gestione scelta servizi
-                if(!((nodo_host)nodo).isEInRicezione()) //Controllo se il nodo ha già una connessione attivata o meno
+                if(!((nodo_host)nodo).isEInRicezione()) //Controllo se il nodo ha giï¿½ una connessione attivata o meno
                     sceltaServizi((LinkedList)m.getData());
-                else System.out.println("Il nodo è gia impegnato in una comunicazione multicast");
+                else System.out.println("Il nodo impegnato in una comunicazione multicast");
             }
             else if(!((nodo_host)nodo).isAttivatoRicezione()){
-                //devo controllare il tempo corrente e il tempo di attivazione se è maggiore allora attivo e
-                System.out.println("Il nodo non può ancora ricevere servizi");
+                //devo controllare il tempo corrente e il tempo di attivazione se maggiore allora attivo e
+                System.out.println("Il nodo non puo ancora ricevere servizi");
            }
         }
     }
@@ -132,7 +132,7 @@ public class netLayer extends NetworkLayer{
      */
     private void sceltaServizi(LinkedList linkedList) {
         
-        //Implementazione del meccanismo che se già sto ricevendo non devo scegliere un altro servizio
+        //Implementazione del meccanismo che se giï¿½ sto ricevendo non devo scegliere un altro servizio
         int dim_lista = linkedList.size();
         java.util.Random r = new java.util.Random();
         GregorianCalendar gc = new GregorianCalendar();
@@ -155,10 +155,10 @@ public class netLayer extends NetworkLayer{
         ((nodo_host)nodo).setEInRicezione(true);
         
         /*Il nodo ha scelto il servizio deve ora assegnarsi al gruppoMulticast e quindi poter essere raggiunto dal flusso dati
-         * 1. Invio la mia scelta alla mia hap e controllo se questa fa già parte del gruppoMulticast (nodo_on_tree)
+         * 1. Invio la mia scelta alla mia hap e controllo se questa fa gia parte del gruppoMulticast (nodo_on_tree)
          *   1.a Se si mi collego direttamente al gruppo e inizio a ricevere in broadcast il servizio
-         *   2.a Se la mia hap non è collegata al gruppo devo inviare la richiesta al nodo satellite il quale mi troverà la miglior strada possibile
-         *      e alla fine alloco la banda sul link che va dall'hap a terra. Devo far attenzione anche al caso in cui potrebbe essere già arrivata una richiesta
+         *   2.a Se la mia hap non ï¿½ collegata al gruppo devo inviare la richiesta al nodo satellite il quale mi troverï¿½ la miglior strada possibile
+         *      e alla fine alloco la banda sul link che va dall'hap a terra. Devo far attenzione anche al caso in cui potrebbe essere giaï¿½ arrivata una richiesta
          *      di connessione per il gruppoMulticast quindi devo aspettare ad aggiungermi ad una lista di waiting
          */
         Messaggi m = new Messaggi("join",this.nodo,this.linkLayer, ((nodo_host)this.nodo).getMyRouter(), s.orologio.getCurrent_Time());

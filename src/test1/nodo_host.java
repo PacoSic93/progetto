@@ -20,14 +20,14 @@ public class nodo_host extends Nodo{
     
     /** Creates a new instance of nodo_host */
     private Object myRouter;
-    /**mi deve indicare se è di tipo sorgente o destinazione*/
+    /**mi deve indicare se e'ï¿½ di tipo sorgente o destinazione*/
     private String tipoHost;
     /**Indica il tipo di servizio che distribuisce*/
     private String tipoServizioTX;
     private String tipoServizioRX;
     private Servizi servizio;
-    private boolean attivatoRicezione = false; //Mi indica se il nodo può ricevere o meno
-    private boolean eInRicezione = false; //Indica che il  nodo è connesso o sta connettendosi ad un servizio multicast
+    private boolean attivatoRicezione = false; //Mi indica se il nodo puo'ï¿½ ricevere o meno
+    private boolean eInRicezione = false; //Indica che il  nodo e'ï¿½ connesso o sta connettendosi ad un servizio multicast
     private double tempoAttivazione = 0;
 
     public boolean isEInRicezione() {
@@ -98,7 +98,7 @@ public class nodo_host extends Nodo{
         super(s,id_nodo,myPhyLayer,myLinkLayer,myNetLayer,network,"nodo host");
         this.myRouter = myRouter;
         this.rate = rate;
-        this.myChannels.addElement(canaleUplink);
+        this.myChannels.add(canaleUplink);
     }
     
     public void Handler(Messaggi m){
@@ -152,7 +152,7 @@ public class nodo_host extends Nodo{
         if(ch>=0){
             m.shifta(this.tempo_propagazione);
             m.setSorgente(this);
-            m.setDestinazione(myChannels.elementAt(ch));
+            m.setDestinazione(myChannels.get(ch));
             m.saliPilaProtocollare = true; 
             
             s.insertMessage(m);
@@ -174,7 +174,7 @@ public class nodo_host extends Nodo{
         int k = 0;
         for(int i = 0;i<this.myChannels.size() && !trovato;i++)
         {
-            canale c = myChannels.elementAt(i);
+            canale c = myChannels.get(i);
             int count = 0;
             while(count<c.getSizeNodo2() && !trovato){
                 if((c.getNodo2at(count).equals(object))){                    

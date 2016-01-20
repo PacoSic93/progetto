@@ -27,7 +27,7 @@ public class scheduler implements Runnable{
     
     /** Creates a new instance of scheduler */        
     //Tutti i messaggi devono essere immessi in questo buffer per poter essere gestiti
-    private Vector<Messaggi> buffer; // Eventi da gestire
+    private ArrayList<Messaggi> buffer; // Eventi da gestire
     
     /*Cicla viene utilizzato per mettere in pausa la simulazione*/
     private boolean cicla;        
@@ -41,7 +41,7 @@ public class scheduler implements Runnable{
     double max_Time;
     
     /**Serve per risolvere gli indirizzi tipo DNS*/
-    public Vector<appartenenzaHostNodi> appartenenze;
+    public ArrayList<appartenenzaHostNodi> appartenenze;
     
     private int id_servizio = 0;
     private int id_Multicast;
@@ -73,17 +73,30 @@ public class scheduler implements Runnable{
     }
 
     
-    
-    public scheduler(double orizzonte_temporale,boolean traced,Vector<appartenenzaHostNodi> appartenenze) {
+    //Deprecato
+    public scheduler(double orizzonte_temporale,boolean traced,ArrayList<appartenenzaHostNodi> appartenenze) {
         //Inizializza il multicast ID
                         
         id_Multicast = 1;        
-        buffer = new Vector<Messaggi>();
+        buffer = new ArrayList<Messaggi>();
         this.traced = traced;
         cicla = true;
         orologio = new Timer();
         this.max_Time = orizzonte_temporale;
         this.appartenenze = appartenenze;
+        if(traced)
+            Trace = new trace(this);        
+    }
+    
+    public scheduler(double orizzonte_temporale,boolean traced)
+    {
+        id_Multicast = 1;        
+        buffer = new ArrayList<Messaggi>();
+        this.traced = traced;
+        cicla = true;
+        orologio = new Timer();
+        this.max_Time = orizzonte_temporale;
+        this.appartenenze = new ArrayList<appartenenzaHostNodi>(); //Da non usare
         if(traced)
             Trace = new trace(this);        
     }
@@ -102,7 +115,7 @@ public class scheduler implements Runnable{
         while(orologio.getCurrent_Time()<=max_Time && buffer.size()>0) {
             
             if(cicla) {
-                Messaggi m = buffer.elementAt(0);
+                Messaggi m = buffer.get(0);
                 if(traced) { 
                     String s =null;
                     try {
@@ -114,7 +127,7 @@ public class scheduler implements Runnable{
                 }
                 
                 
-                buffer.removeElementAt(0);    
+                buffer.remove(0);    
                 //Avanzo l'orologio del simulatore'
                 orologio.setCurrent_Time(m.getTempo_spedizione().getCurrent_Time());
                 //Faccio scattare l'evento sul nodo destinazione'
@@ -125,7 +138,7 @@ public class scheduler implements Runnable{
         }
         
         //Solo aggiornamento interfaccia grafica
-        while(buffer.size()==0 && orologio.getCurrent_Time()<=max_Time){
+        while(buffer.isEmpty() && orologio.getCurrent_Time()<=max_Time){
             this.orologio.shifta(10000);
             this.progressBar.setValue((int) this.orologio.getCurrent_Time());
         }
@@ -146,14 +159,15 @@ public class scheduler implements Runnable{
         int posto=-1;
         boolean trovato=false;
         for(int i=0; i< buffer.size() && !trovato; i++){
-            if(buffer.elementAt(i).getTempo_spedizione().getCurrent_Time() > msg.getTempo_spedizione().getCurrent_Time()){
+            if(buffer.get(i).getTempo_spedizione().getCurrent_Time() > msg.getTempo_spedizione().getCurrent_Time()){
                 trovato=true;
                 posto=i;
             }
         }
         if(trovato)
-            buffer.insertElementAt(msg, posto);
-        else buffer.addElement(msg);
+            buffer.add(posto, msg);
+            
+        else buffer.add(msg);
     }//metodo insertMessage(Messaggi msg)
 
     void addProgressBar(JProgressBar progressBar) {
@@ -202,9 +216,9 @@ public class scheduler implements Runnable{
         boolean trovato = false;
         Object nodo = null;
         for(int i = 0;i<this.appartenenze.size() && !trovato;i++){
-            if((((nodo_host)this.appartenenze.elementAt(i).getDestinazioneHost()).getId()) == idD){
+            if((((nodo_host)this.appartenenze.get(i).getDestinazioneHost()).getId()) == idD){
                 trovato = true;
-                nodo = this.appartenenze.elementAt(i).getNodo();
+                nodo = this.appartenenze.get(i).getNodo();
             }
         }
         return nodo;
@@ -214,8 +228,8 @@ public class scheduler implements Runnable{
     public Vector<Object> trovaHosts(Object n){
         Vector<Object> myHosts = new Vector<Object>();
         for(int i = 0;i<this.appartenenze.size();i++){
-            if(appartenenze.elementAt(i).getNodo() == n)
-                myHosts.addElement(appartenenze.elementAt(i).getDestinazioneHost());
+            if(appartenenze.get(i).getNodo() == n)
+                myHosts.addElement(appartenenze.get(i).getDestinazioneHost());
         }
         return myHosts;
     }

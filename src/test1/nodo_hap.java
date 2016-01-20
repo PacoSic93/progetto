@@ -19,6 +19,7 @@ import base_simulator.*;
 import base_simulator.layers.*;
 import base_simulator.scheduler;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.Vector;
@@ -27,16 +28,16 @@ public class nodo_hap extends Nodo
 {
 
     public canale getMyChannels(int index) {
-        return myChannels.elementAt(index);
+        return myChannels.get(index);
     }
 
-    public void setMyChannels(Vector<canale> myChannels) {
+    public void setMyChannels(ArrayList<canale> myChannels) {
         this.myChannels = myChannels;
     }
 
     
     public void addCanaleUplinkHost(canale hapUplink) {
-        this.myChannels.add(hapUplink); //Avrà indice 2 e indicherà il canale condiviso di upLink per gli host
+        this.myChannels.add(hapUplink); //Avra'ï¿½ indice 2 e indichera' il canale condiviso di upLink per gli host
     }
 
     public int getMySatIdSpot()
@@ -49,10 +50,12 @@ public class nodo_hap extends Nodo
         this.mySatIdSpot = mySatIdSpot;
     }
 
-    public nodo_hap(scheduler s, int id_nodo, physicalLayer myPhyLayer, LinkLayer myLinkLayer, NetworkLayer myNetLayer, Grafo network, NodoSatellite sat, 
+    public nodo_hap(scheduler s, int id_nodo, 
+            physicalLayer myPhyLayer, LinkLayer myLinkLayer, NetworkLayer myNetLayer, TransportLayer myTransportLayer,
+            Grafo network, NodoSatellite sat, 
             canale hapSat,double capacita,double dim_pacchetto,double tempo_propagazione)
     {
-        super(s, id_nodo, myPhyLayer, myLinkLayer, myNetLayer, network, "Nodo hap");
+        super(s, id_nodo, myPhyLayer, myLinkLayer, myNetLayer, myTransportLayer,network, "Nodo hap");
         id_canale = 1;
         vicini = new Vector();
         this.sat = sat;
@@ -70,8 +73,8 @@ public class nodo_hap extends Nodo
         id_canale++;
         
         
-        myChannels.addElement(c); //Canale di uplink condiviso con altre hap - indice 0
-        myChannels.addElement(c1); //Canale di IHL mediante il quale parlo con le altre hap - indice 1
+        myChannels.add(c); //Canale di uplink condiviso con altre hap - indice 0
+        myChannels.add(c1); //Canale di IHL mediante il quale parlo con le altre hap - indice 1
         
     }
 
@@ -86,17 +89,17 @@ public class nodo_hap extends Nodo
     public void aggiungiVicinoHap(Object hap)
     {
         vicini.addElement(hap);
-        ((canale)myChannels.elementAt(1)).addNodoalCanale(hap);
+        ((canale)myChannels.get(1)).addNodoalCanale(hap);
     }
 
     public void aggiungiVicinoTerminaleTerrestre(Object nodo)
     {
         vicini.addElement(nodo);
-        ((canale)myChannels.elementAt(2)).addNodoalCanale(nodo);
+        ((canale)myChannels.get(2)).addNodoalCanale(nodo);
     }
     /**
      * Questo metodo mi permette di allocare sul link hap-satellite anche nel caso ci sia stata 
-     * già un registrazione precedente
+     * gia'ï¿½ un registrazione precedente
      * @param startTime
      * @param rateDaAllocare
      */ 
@@ -128,7 +131,7 @@ public class nodo_hap extends Nodo
             m.shifta(tempo_propagazione);
             m.setSorgente(this);
             int pos = ch[1];
-            m.setDestinazione(myChannels.elementAt(ch[0]));
+            m.setDestinazione(myChannels.get(ch[0]));
             m.saliPilaProtocollare = true;
             s.insertMessage(m);
         }
@@ -155,7 +158,7 @@ public class nodo_hap extends Nodo
         ch[1] = -1;
         for(int i = 0; i < myChannels.size() && !trovato; i++)
         {
-            canale c = (canale)myChannels.elementAt(i);
+            canale c = (canale)myChannels.get(i);
             for(int count = 0; !trovato && count < c.getSizeNodo2();)
                 if(c.getNodo2at(count).equals(object))
                 {
@@ -193,13 +196,13 @@ public class nodo_hap extends Nodo
 
     public int getNumberOfMyTerminals()
     {
-        return ((canale)myChannels.elementAt(2)).getSizeNodo2();
+        return ((canale)myChannels.get(2)).getSizeNodo2();
     }
     
-    public LinkedList getMyHost(){
-        LinkedList myHost = new LinkedList();
+    public ArrayList getMyHost(){
+        ArrayList myHost = new ArrayList();
         System.out.println("Nodo HAP -->"+this.id_nodo);
-        myHost = ((canale)myChannels.elementAt(2)).getNodiSorgenti();
+        myHost = ((canale)myChannels.get(2)).getNodiSorgenti();
         return myHost;
     }
 
