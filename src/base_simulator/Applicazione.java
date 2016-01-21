@@ -18,6 +18,7 @@ public class Applicazione {
      double size;
      String tipo;
      int start;
+     double packet_size;
 
     public double getRate() {
         return rate;
@@ -83,7 +84,7 @@ public class Applicazione {
         this.start = start;
     }
 
-    public Applicazione(double rate, int TON, int TOFF, int port, int dest, double size, String tipo, int start) {
+    public Applicazione(double rate, int TON, int TOFF, int port, int dest, double size,double pckt_size, String tipo, int start) {
         this.rate = rate;
         this.TON = TON;
         this.TOFF = TOFF;
@@ -92,6 +93,15 @@ public class Applicazione {
         this.size = size;
         this.tipo = tipo;
         this.start = start;
+        this.packet_size = pckt_size;
+    }
+
+    public double getPacket_size() {
+        return packet_size;
+    }
+
+    public void setPacket_size(double packet_size) {
+        this.packet_size = packet_size;
     }
      
      

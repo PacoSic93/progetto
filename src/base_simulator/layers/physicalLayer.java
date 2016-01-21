@@ -24,6 +24,17 @@ public class physicalLayer extends Entita {
     protected LinkLayer linkLayer;
     /*Oggetto proprietario della pila che mi interfaccierà con il mondo esterno*/
     Object nodo;
+    private double header_size = 26; //Byte di header
+
+    public double getHeader_size() {
+        return header_size;
+    }
+
+    public void setHeader_size(double header_size) {
+        this.header_size = header_size;
+    }
+    
+    
     
     /** Creates a new instance of physicalLayer */
     public physicalLayer(scheduler s,double tempo_processamento_bit) {
@@ -47,8 +58,15 @@ public class physicalLayer extends Entita {
     {
         //System.out.println("\nIl messaggio è arrivato a livello fisico");
         if(m.saliPilaProtocollare)
+        {   
+            m.removeHeader(header_size);
             inviaAlinkLayer(m);
-        else inviaAnodo(m);
+        }
+        else 
+        {
+            m.addHeader(header_size);
+            inviaAnodo(m);
+        }
     }
     
     /*Invio il pacchetto al LinkLayer*/
@@ -61,7 +79,7 @@ public class physicalLayer extends Entita {
 
     /*La gestione interna è terminata posso passare il messaggio all'oggetto nodo che lo metterà sul canale*/
     private void inviaAnodo(Messaggi m) {
-        m.shifta(0);
+        m.shifta(this.tempo_processamento_bit);
         m.setSorgente(this);
         //Invio il messaggio al box esterno che provvederà a mettere il messaggio sul canale fisico il quale poi invierà verso il nodo destinazione
         m.setDestinazione(nodo);

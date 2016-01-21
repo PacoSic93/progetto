@@ -15,31 +15,31 @@ and open the template in the editor.
     <canale id="2" tipo="WIRED" capacita="5000000" dim_pacchetto = "1526" tempo_propagazione = "10"></canale>
 </canali>
     <nodo_host id="0" gateway="3">
-        <application type="simple_source_tcp" rate="100" TON="100" TOFF="0" port="1234" dest="2" size="10" start="1000">
+        <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="2" size="0.001500" pckt_size="1460.0" start="1000" >
             
         </application>
         
         <interfaces>
-            <interface id="0" IP="192.168.1.2/24" canale="0"></interface>
+            <interface id="0" IP="192.168.1.2/24" dest="3" canale="0" metrica="1.0"></interface>
         </interfaces>
         
     </nodo_host>
     
     <nodo_host id="2" gateway="4">
-        <application type="simple_receiver_tcp" port="1234">
+        <application type="simple_receiver_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="2" size="5" pckt_size="1460.0" start="1000" >
         </application>
         
         <interfaces>
-            <interface id="0" IP="192.168.1.2/24" canale="2"></interface>
+            <interface id="0" IP="192.168.1.2/24" dest="4" canale="2" metrica="1.0"></interface>
         </interfaces>
     </nodo_host>
     
-    <router id="3">
+    <router id="3" gateway="4">
         <protocol tipo="OSPF" TTL="1" ROUTING="auto"></protocol>
              
         <interfaces>
-            <interface id="0" IP="192.168.2.1/30" canale="1"></interface>
-            <interface id="1" IP="192.168.1.1/24" canale="0"></interface>
+            <interface id="0" IP="192.168.2.1/30" dest="4" canale="1" metrica="1.0"></interface>
+            <interface id="1" IP="192.168.1.1/24" dest="1" canale="0" metrica="1.0"></interface>
         </interfaces>
         <vicini>
             <nodo id="1" interface="1"></nodo>
@@ -47,11 +47,11 @@ and open the template in the editor.
         </vicini>
     </router>
     
-    <router id="4">
+    <router id="4" gateway="3">
         <protocol tipo="OSPF" TTL="1" ROUTING="auto"></protocol>
         <interfaces>
-            <interface id="0" IP="192.168.2.2/30" canale="1"></interface>
-            <interface id="1" IP="192.168.1.1/24" canale="2"></interface>
+            <interface id="0" IP="192.168.2.2/30" dest="3" canale="1" metrica="1.0"></interface>
+            <interface id="1" IP="192.168.1.1/24" dest="2" canale="2" metrica="1.0"></interface>
         </interfaces>
         <vicini>
             <nodo id="2" interface="1"></nodo>

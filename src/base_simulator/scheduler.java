@@ -48,8 +48,8 @@ public class scheduler implements Runnable{
         
     private Date d;
     
-    private JProgressBar progressBar;
-    private JDialog endedSim;
+    
+    
     
     private Grafo grafo;
 
@@ -132,7 +132,7 @@ public class scheduler implements Runnable{
                 orologio.setCurrent_Time(m.getTempo_spedizione().getCurrent_Time());
                 //Faccio scattare l'evento sul nodo destinazione'
                 lanciaHandler(m);
-                this.progressBar.setValue((int) this.orologio.getCurrent_Time());
+
             }
             
         }
@@ -140,11 +140,11 @@ public class scheduler implements Runnable{
         //Solo aggiornamento interfaccia grafica
         while(buffer.isEmpty() && orologio.getCurrent_Time()<=max_Time){
             this.orologio.shifta(10000);
-            this.progressBar.setValue((int) this.orologio.getCurrent_Time());
+
         }
         
-        System.out.println("\nLa simulazione � terminata il :"+getData());
-        this.endedSim.show();
+        System.out.println("\nLa simulazione è terminata il :"+getData());
+        
     }
     
     
@@ -170,15 +170,9 @@ public class scheduler implements Runnable{
         else buffer.add(msg);
     }//metodo insertMessage(Messaggi msg)
 
-    void addProgressBar(JProgressBar progressBar) {
-       this.progressBar = progressBar;
-       this.progressBar.setMinimum(0);
-       this.progressBar.setMaximum((int) this.max_Time);
-    }
 
-    void setEndedSim(JDialog endedSim) {
-        this.endedSim=endedSim;
-    }
+
+
     
     
     /**Utilizzo della reflection*/ 
@@ -238,8 +232,9 @@ public class scheduler implements Runnable{
     private String getData() {
         d = new Date();
         
+        
         int giorno = d.getDate();
-        int mese = d.getMonth();
+        int mese = d.getMonth()+1;
         int anno = d.getYear()+1900;
         
         int ora = d.getHours();

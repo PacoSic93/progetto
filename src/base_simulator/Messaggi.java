@@ -9,6 +9,8 @@ public class Messaggi implements Cloneable {
     
     private String tipo_Messaggio;    
     private Object data;
+    private double packet_size;
+    
     
     
     public Object getData() {
@@ -28,6 +30,31 @@ public class Messaggi implements Cloneable {
     private Object nodoSorgente;
     /**Indica il prossimo nodo verso il quale il messaggio deve essere inviato*/
     private Object nextHop;
+    private int nextHop_id;
+
+    public int getNextHop_id() {
+        return nextHop_id;
+    }
+
+    public void setNextHop_id(int nextHop_id) {
+        this.nextHop_id = nextHop_id;
+    }
+
+    public double getRate() {
+        return rate;
+    }
+
+    public void setRate(double rate) {
+        this.rate = rate;
+    }
+
+    public boolean isIsData() {
+        return isData;
+    }
+
+    public void setIsData(boolean isData) {
+        this.isData = isData;
+    }
     
     /*Tempo in cui il pacchetto parte dal nodo intermedio*/
     private Timer tempo_spedizione;
@@ -338,8 +365,30 @@ public class Messaggi implements Cloneable {
     public void setDati(Object dati){
         this.dati = dati;
     }
+
+    public void setSize(double packet_size) {
+        this.packet_size = packet_size;
+    }
     
+    public void addHeader(double header_size)
+    {
+        this.packet_size+=header_size;
+    }
     
+    public void removeHeader(double header_size)
+    {
+        this.packet_size-=header_size;
+    }
     
+    public double getSize()
+    {
+        return this.packet_size;
+    }
+
+    public int getID() {
+        return this.ID;
+    }
+
+        
     
 }

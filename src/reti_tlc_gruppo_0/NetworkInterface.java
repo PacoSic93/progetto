@@ -23,28 +23,25 @@ public class NetworkInterface {
     private int id;
     private String ipv4;
     private int channel_idx;
-    private ArrayList<String> dest;
+    private int dest;
 
-    public NetworkInterface(int id, String ipv4, int channel_idx) {
+    public NetworkInterface(int id, String ipv4, int dest, int channel_idx) {
         this.id = id;
         this.ipv4 = ipv4;
         this.channel_idx = channel_idx;
-        dest = new ArrayList<String>();
+        this.dest = dest;
     }
     
-    public String getDest(int idx)
-    {
-        return this.dest.get(idx);
+    public int getDest()
+    {      
+        return this.dest;
     }
     
-    public int getDestSize()
-    {
-        return this.dest.size();
-    }
     
-    public void addDest(String _dest)
+    
+    public void addDest(int _dest)
     {
-        this.dest.add(_dest);
+//        this.dest = _dest;
     }
 
     public int getId() {

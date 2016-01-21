@@ -91,4 +91,17 @@ public class tabellaRouting
 		}
 		return pos;
 	}
+
+    int getNextHop(int dest) {
+        int res = -1;
+        for(Object linea : entries)
+        {
+            if(dest == ((RoutingRow)linea).getNodoDestinazione())
+            {
+                res = ((RoutingRow)linea).getNextHop();
+                break;
+            }
+        }
+        return res;
+    }
 }

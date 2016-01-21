@@ -39,7 +39,7 @@ public class nodo_router extends Nodo{
         this.info = info;
     }
     
-    private ArrayList<NetworkInterface> my_interface = null;
+    
     private int gatewayId; //router di default
     private ArrayList<NetworkInterface> nics = new ArrayList<NetworkInterface>();
     private ArrayList<Integer> neighbours = new ArrayList<Integer>();
@@ -57,7 +57,7 @@ public class nodo_router extends Nodo{
             physicalLayer myPhyLayer, LinkLayer myLinkLayer, NetworkLayer myNetLayer, TransportLayer myTransportLayer,
             Grafo network, String tipo,int gtw) {
         super(s, id_nodo, myPhyLayer, myLinkLayer, myNetLayer, myTransportLayer,network, tipo);
-        my_interface = new ArrayList<NetworkInterface>();
+        
         gatewayId = gtw;
     }
 
@@ -96,20 +96,36 @@ public class nodo_router extends Nodo{
     
     private void inviaMessaggioACanale(Messaggi m) {
         
-        int interface_id = 0;//m.getOutcomingInterface(); //Devo settare interfaccia di uscita nel link layer?????
-        int channel_id = my_interface.get(interface_id).getChannel_idx();
-        canale current_channel = getChannel(channel_id);
+        int channel_id = 0;
+        NetworkInterface i = null;
+        for(Object interface_element : nics)
+        {
+            i = (NetworkInterface)interface_element;
+            if(i.getDest() == m.getNextHop_id())
+            {
+                channel_id = i.getChannel_idx();
+                break;
+            }                         
+        }
         
+         
+        canale current_channel = info.getCanale(channel_id);
+
         //Invio il messaggio al canale
         m.shifta(0);
-        m.setSorgente(this);
+        m.setSorgente(this);        
+        m.setNextHop(info.getNodo(m.getNextHop_id()));
         m.setDestinazione(current_channel);
         s.insertMessage(m);
         
+        System.out.println("I : "+this.getTipo()+": IP :"+ i.getIpv4() +" Invio messaggio su canale :"+current_channel.getId());
         
     }
     
     private void inviaMessaggioAPhyLayer(Messaggi m) {
+        
+        System.out.println("I : "+this.getTipo()+": Ricevuto msg dal canale :"+((canale)m.getSorgente()).getId());
+        
         m.shifta(0);
         m.setSorgente(this);
         m.setDestinazione(this.myPhyLayer);
@@ -173,7 +189,7 @@ public class nodo_router extends Nodo{
 
     void addNeighbour(int n_id, int if_id) {
         this.addNeighbour(n_id);
-        this.nics.get(if_id).addDest(""+n_id);
+        this.nics.get(if_id).addDest(n_id);
     }
     
 }

@@ -34,6 +34,8 @@ public class NetworkLayer extends Entita{
     //Tabella di instradamento
     protected tabellaRouting myRoutingTable;
     
+    protected double header = 20; //Byte
+    
     //Da utilizzare per calcolare i percorsi per raggiungere le destinazioni
     protected Decisioner decisioner; 
     
@@ -62,6 +64,7 @@ public class NetworkLayer extends Entita{
         this.tempo_di_processamento = tempo_di_processamento;
                 
         this.myRoutingTable = new tabellaRouting();
+        this.decisioner = new Decisioner(this.myRoutingTable);
     }
     
     /*Gestisce il pacchetto e il comportamento del nodo*/
@@ -83,15 +86,48 @@ public class NetworkLayer extends Entita{
     /**Viene gestito dalla classe che deve estendere il livello rete
        deve gestire la ricezione dei pacchetti dati*/
     public void gestisciPacchettoDati(Messaggi m) {
-        System.out.println("\nE' arrivato un messaggio dati nel nodo a livello di rete");
+        System.out.println("\nE' arrivato un messaggio dati nel nodo "+((Nodo)this.nodo).getTipo()+" ID:"+((Nodo)this.nodo).getId()+"a livello di rete");
+        if(m.saliPilaProtocollare == false)
+        {
+            //Il livello rete ha il compito di trovare la destinazione
+            int next_hop = this.decisioner.getNextHop(((Nodo)m.getNodoDestinazione()).getId());
+            m.setNextHop_id(next_hop);
+            m.addHeader(header);
+            m.setSorgente(this);
+            m.shifta(this.tempo_di_processamento);
+            m.setDestinazione(this.linkLayer);
+            s.insertMessage(m);
+        }
+        else
+        {
+            //Aggiorna Statistiche
+            this.nr_pkt_dati++;
+            this.delay_medio_pkt_dati +=Float.valueOf(""+(s.orologio.getCurrent_Time()-m.getTempo_di_partenza())).floatValue();
+            this.jitter_medio +=s.orologio.getCurrent_Time()-arrivo_pkt_prec;
+            this.arrivo_pkt_prec = s.orologio.getCurrent_Time();
+            if(((Nodo)this.nodo).getTipo().contains("host"))
+            {
+               //TODO : Invia il pacchetto al livello superiore se non sono router
+                if(((Nodo)m.getNodoDestinazione()).getId() == ((Nodo)this.nodo).getId())
+                {
+                    System.out.println("********Messaggio giunto a destinazione*******");
+                }
+            }
+            else
+            {
+                //TODO Devo inoltrare il pacchetto al prossimo nodo
+                int next_hop = this.decisioner.getNextHop(((Nodo)m.getNodoDestinazione()).getId());
+                
+                m.shifta(this.tempo_di_processamento);
+                m.setSorgente(this);
+                m.setDestinazione(this.linkLayer);
+                m.setNextHop_id(next_hop);
+                m.saliPilaProtocollare = false;
+                s.insertMessage(m);                
+            }
+        }
         
-        //Aggiorna Statistiche
-        this.nr_pkt_dati++;
-        this.delay_medio_pkt_dati +=Float.valueOf(""+(s.orologio.getCurrent_Time()-m.getTempo_di_partenza())).floatValue();
-        this.jitter_medio +=s.orologio.getCurrent_Time()-arrivo_pkt_prec;
-        this.arrivo_pkt_prec = s.orologio.getCurrent_Time();
         
-        //TODO : Invia il pacchetto al livello superiore 
     }
 
     /**
@@ -140,4 +176,8 @@ public class NetworkLayer extends Entita{
         }
         return s;
     }   
+
+    public void setDefaultGateway(int gateway) {
+        this.decisioner.setDefault_gateway(gateway);
+    }
 }

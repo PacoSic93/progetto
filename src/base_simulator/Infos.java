@@ -22,9 +22,9 @@ public class Infos {
     
     public Infos()
     {
-        ArrayList<canale> channels = new ArrayList<canale>();
-        ArrayList<Nodo> nodes = new ArrayList<Nodo>();
-        ArrayList<Link> links  = new ArrayList<Link>();
+        channels = new ArrayList<canale>();
+        nodes = new ArrayList<Nodo>();
+        links  = new ArrayList<Link>();
     }
     
     public void addCanale(canale c)
@@ -34,7 +34,7 @@ public class Infos {
     
     public void addNodo(Nodo n)
     {
-        n.addInfos(this);
+        n.setInfo(this);
         nodes.add(n);
     }
     
@@ -84,6 +84,8 @@ public class Infos {
         }
         return res;
     }
+
+    
     
     
     

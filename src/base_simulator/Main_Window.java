@@ -25,7 +25,7 @@ import org.jdom2.*;
 import org.jdom2.input.*;
 import java.util.*;
 
-import com.jtattoo.plaf.*;
+
 import javax.swing.*;
 
 /**
@@ -339,7 +339,7 @@ public class Main_Window extends javax.swing.JFrame implements Runnable {
 //TODO : Faccio inviare un messaggio di benvenuto dal satellite verso tutte le hap coperte
         //Lancio il simulatore
         //s.appartenenze = app;
-        s.setEndedSim(this.endedSim);
+        
         new Thread(s).start();
 //        s.start();
     }//GEN-LAST:event_jButton1MouseClicked
@@ -428,7 +428,7 @@ private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                try {
+/*                try {
                     // select Look and Feel
                     UIManager.setLookAndFeel("com.jtattoo.plaf.smart.SmartLookAndFeel");
                     // start application
@@ -436,6 +436,7 @@ private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+                */
                 new Main_Window().setVisible(true);
 
             }
@@ -552,7 +553,7 @@ private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
             double max_time = Double.valueOf(orizons.getText()).doubleValue() * 60000;
             ArrayList<appartenenzaHostNodi> app = new ArrayList<appartenenzaHostNodi>();
             s = new scheduler(max_time, true, app);
-            s.addProgressBar(progressBar);
+
             boolean traced = this.tracing.isSelected();
             Grafo G = new Grafo(2);
 

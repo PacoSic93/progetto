@@ -38,6 +38,8 @@ public class Nodo extends Entita{
     public Infos getInfo() {
         return info;
     }
+    
+    
 
     public void setInfo(Infos info) {
         this.info = info;
@@ -69,6 +71,7 @@ public class Nodo extends Entita{
         
         
         this.apps = new ArrayList<Applicazione>();
+        info = new Infos();
     }
     
     /**Questo netodo andrà esteso dalle classi figlie e serve per gestire
@@ -80,6 +83,7 @@ public class Nodo extends Entita{
     public void addApplicazione(Applicazione a)
     {
         this.apps.add(a);
+        myTransportLayer.enablePort(a.getPort()); //Apro la porta per l'applicazione
     }
     
     public int returnID(){

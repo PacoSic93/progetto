@@ -42,7 +42,7 @@ public class main_app extends javax.swing.JFrame {
     private static scheduler s;
 
     private static void init_sim_parameters() {
-        s = new scheduler(100, false);
+        s = new scheduler(10000, false);
     }
 
     private String conf_file_path;
@@ -126,18 +126,16 @@ public class main_app extends javax.swing.JFrame {
         });
 
         jLabel3.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(0, 0, 0));
         jLabel3.setText("Stato Configurazione");
 
-        jTextField1.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField1.setForeground(new java.awt.Color(0, 0, 0));
         jTextField1.setText("conf.xml");
         jTextField1.setBorder(null);
 
         jCheckBox1.setForeground(new java.awt.Color(153, 255, 51));
         jCheckBox1.setEnabled(false);
 
-        jButton3.setForeground(new java.awt.Color(153, 255, 51));
+        jButton3.setBackground(new java.awt.Color(255, 255, 255));
+        jButton3.setForeground(new java.awt.Color(51, 153, 255));
         jButton3.setText("...");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -164,7 +162,7 @@ public class main_app extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
-                .addGap(232, 232, 232))
+                .addGap(243, 243, 243))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -207,19 +205,23 @@ public class main_app extends javax.swing.JFrame {
         //1 . Load config file, then check its validility
 
         File conf_file = new File(jTextField1.getText());
-
+        boolean res =false;
         if (conf_file.exists()) {
-            startParsing(conf_file);
+             res = startParsing(conf_file);
         } else if (conf_file_path != null) {
             conf_file = new File(conf_file_path);
-            startParsing(conf_file);
+            res = startParsing(conf_file);
         } else {
             System.out.println("File non esistente");
         }
 
         //2 . File is valid! Create Network
+        if(res == true)
+        {
+            this.jCheckBox1.setSelected(true);
+        }
         //3 . Ready to start simulation
-
+        new Thread(s).start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -264,6 +266,8 @@ public class main_app extends javax.swing.JFrame {
         }
         //</editor-fold>
         init_sim_parameters();
+        
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -290,9 +294,9 @@ public class main_app extends javax.swing.JFrame {
     
     
 
-    private void startParsing(File xmlFile) {
+    private boolean startParsing(File xmlFile) {
         SAXBuilder saxBuilder = new SAXBuilder();
-
+        boolean res = false;
         try {
 
             Document document = (Document) saxBuilder.build(xmlFile);
@@ -335,6 +339,7 @@ public class main_app extends javax.swing.JFrame {
                 NetworkLayer nl = new NetworkLayer(s, 0.0);
                 TransportLayer tl = new TransportLayer(s,0.0);
 
+                nl.setDefaultGateway(gateway);
                 nodo_host nh = new nodo_host(s, id, pl, ll, nl,tl, null, "nodo_host", gateway);
 
                 pl.connectPhysicalLayer(ll, nh);
@@ -353,18 +358,20 @@ public class main_app extends javax.swing.JFrame {
                         System.out.println("idinterfaccia:" + ((Element) obj_interfaccia).getAttributeValue("id"));
                         int if_id = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("id"));
                         String IP = ((Element) obj_interfaccia).getAttributeValue("IP");
+                        int dest = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("dest"));
                         int channelId = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("canale"));
 
-                        NetworkInterface nic = new NetworkInterface(if_id, IP, channelId);
+                        NetworkInterface nic = new NetworkInterface(if_id, IP, dest,channelId);
                         nh.addNIC(nic);
                     }
                 }
                 
-                listElement1 = ((Element) nodo).getChildren("interfaces");
+                listElement1 = ((Element) nodo).getChildren("application");
 
                 for (Object application_element : listElement1) {
                     Element app_item = (Element)application_element;
                     String tipo = app_item.getAttributeValue("type");
+                    
                     Double rate = Double.valueOf(app_item.getAttributeValue("rate"));
                     int TON = Integer.valueOf(app_item.getAttributeValue("TON"));
                     int TOFF = Integer.valueOf(app_item.getAttributeValue("TOFF"));
@@ -372,8 +379,9 @@ public class main_app extends javax.swing.JFrame {
                     int dest = Integer.valueOf(app_item.getAttributeValue("dest"));
                     double size = Double.valueOf(app_item.getAttributeValue("size"));
                     int start = Integer.valueOf(app_item.getAttributeValue("start"));
+                    double pckt_size = Double.valueOf(app_item.getAttributeValue("pckt_size"));
                     
-                    Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,tipo,start);                    
+                    Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,pckt_size,tipo,start);                    
                     nh.addApplicazione(app);
                             
                 }
@@ -389,12 +397,14 @@ public class main_app extends javax.swing.JFrame {
 
             for (Object routers_list : listElement) {
                 int id = Integer.valueOf(((Element) routers_list).getAttributeValue("id"));
-
+                int gateway = Integer.valueOf(((Element) routers_list).getAttributeValue("gateway"));
+                
                 physicalLayer pl = new physicalLayer(s, 0.0);
                 LinkLayer ll = new LinkLayer(s, 0.0);
                 NetworkLayer nl = new NetworkLayer(s, 0.0);
                 TransportLayer tl = new TransportLayer(s,0.0);
-
+                
+                nl.setDefaultGateway(gateway);
                 nodo_router nr = new nodo_router(s, id, pl, ll, nl, tl,null, "nodo_router", 0);
 
                 pl.connectPhysicalLayer(ll, nr);
@@ -434,8 +444,8 @@ public class main_app extends javax.swing.JFrame {
                         int if_id = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("id"));
                         String IP = ((Element) obj_interfaccia).getAttributeValue("IP");
                         int channelId = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("canale"));
-
-                        NetworkInterface nic = new NetworkInterface(if_id, IP, channelId);
+                        int dest = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("dest"));
+                        NetworkInterface nic = new NetworkInterface(if_id, IP, dest ,channelId);
                         nr.addNIC(nic);
                     }
                 }
@@ -492,6 +502,7 @@ public class main_app extends javax.swing.JFrame {
             System.out.println(jdomex.getMessage());
 
         }
-
+        return res;
     }
+    
 }
