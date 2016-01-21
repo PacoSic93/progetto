@@ -5,6 +5,8 @@
  */
 package reti_tlc_gruppo_0;
 
+import base_simulator.Infos;
+import base_simulator.Applicazione;
 import base_simulator.Grafo;
 import base_simulator.Messaggi;
 import base_simulator.Nodo;
@@ -23,6 +25,16 @@ import java.util.ArrayList;
 public class nodo_host extends Nodo{
     private ArrayList<NetworkInterface> my_interface = null;
     private int gatewayId;
+    
+    private Infos info = null;
+
+    public Infos getInfo() {
+        return info;
+    }
+
+    public void setInfo(Infos info) {
+        this.info = info;
+    }
     private ArrayList<NetworkInterface> nics = new ArrayList<NetworkInterface>();
     public nodo_host(scheduler s, int id_nodo, 
             physicalLayer myPhyLayer, LinkLayer myLinkLayer, NetworkLayer myNetLayer,TransportLayer myTransportLayer,
@@ -79,6 +91,24 @@ public class nodo_host extends Nodo{
 
     int getGTW() {
         return this.gatewayId;
+    }
+    
+    //Il nodo genera gli eventi di Applicazione che scenderanno al livello trasporto
+    public void generaEventiApplicazione()
+    {
+        for(Object app : this.apps)
+        {
+            
+            Applicazione item = (Applicazione)app;
+            gestisciApplicazione(app);
+            
+        }
+    }
+
+    private void gestisciApplicazione(Applicazione app) {
+        Nodo dest = info.getNodo(app.getDest);
+        Messaggi m = new Messaggi("applicazione",this,dest,);
+        m.setApplication_port();
     }
     
     

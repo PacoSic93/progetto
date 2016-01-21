@@ -10,6 +10,7 @@ public class Messaggi implements Cloneable {
     private String tipo_Messaggio;    
     private Object data;
     
+    
     public Object getData() {
         return data;
     }
@@ -72,6 +73,48 @@ public class Messaggi implements Cloneable {
     boolean isNetworkingMessage = false;
     /**Indica se il messaggio è di tipo broadcast*/
     boolean BroadCast = false;
+    
+    int application_port = 0;
+
+    public double getPermanenzaMax() {
+        return permanenzaMax;
+    }
+
+    public void setPermanenzaMax(double permanenzaMax) {
+        this.permanenzaMax = permanenzaMax;
+    }
+
+    public double getPermanenza() {
+        return permanenza;
+    }
+
+    public void setPermanenza(double permanenza) {
+        this.permanenza = permanenza;
+    }
+
+    public int getCountPermanenza() {
+        return countPermanenza;
+    }
+
+    public void setCountPermanenza(int countPermanenza) {
+        this.countPermanenza = countPermanenza;
+    }
+
+    public boolean isSaliPilaProtocollare() {
+        return saliPilaProtocollare;
+    }
+
+    public void setSaliPilaProtocollare(boolean saliPilaProtocollare) {
+        this.saliPilaProtocollare = saliPilaProtocollare;
+    }
+
+    public int getApplication_port() {
+        return application_port;
+    }
+
+    public void setApplication_port(int application_port) {
+        this.application_port = application_port;
+    }
     
     /*Indica quali sono gli spots che deveno ricevere il messaggio*/
     Vector<Object> spots;

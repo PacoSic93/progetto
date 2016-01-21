@@ -5,6 +5,8 @@
  */
 package reti_tlc_gruppo_0;
 
+import base_simulator.Infos;
+import base_simulator.Applicazione;
 import base_simulator.Link;
 import base_simulator.Nodo;
 import base_simulator.canale;
@@ -14,14 +16,14 @@ import base_simulator.layers.TransportLayer;
 import base_simulator.layers.physicalLayer;
 import base_simulator.link_extended;
 import base_simulator.scheduler;
-import java.io.BufferedReader;
+
 import java.io.File;
-import java.io.FileReader;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
-import org.jdom2.Attribute;
+
 
 import org.jdom2.Document;
 
@@ -284,9 +286,9 @@ public class main_app extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
-    private ArrayList<canale> channels = new ArrayList<canale>();
-    private ArrayList<Nodo> nodes = new ArrayList<Nodo>();
-    private ArrayList<Link> links  = new ArrayList<Link>();
+    private Infos info = new Infos();
+    
+    
 
     private void startParsing(File xmlFile) {
         SAXBuilder saxBuilder = new SAXBuilder();
@@ -318,7 +320,7 @@ public class main_app extends javax.swing.JFrame {
 
                     canale c = new canale(s, id, capacita, dim_pckt, tempo_prop);
 
-                    channels.add(c);
+                    info.addCanale(c);
                 }
             }
 
@@ -357,10 +359,29 @@ public class main_app extends javax.swing.JFrame {
                         nh.addNIC(nic);
                     }
                 }
+                
+                listElement1 = ((Element) nodo).getChildren("interfaces");
+
+                for (Object application_element : listElement1) {
+                    Element app_item = (Element)application_element;
+                    String tipo = app_item.getAttributeValue("type");
+                    Double rate = Double.valueOf(app_item.getAttributeValue("rate"));
+                    int TON = Integer.valueOf(app_item.getAttributeValue("TON"));
+                    int TOFF = Integer.valueOf(app_item.getAttributeValue("TOFF"));
+                    int port = Integer.valueOf(app_item.getAttributeValue("port"));
+                    int dest = Integer.valueOf(app_item.getAttributeValue("dest"));
+                    double size = Double.valueOf(app_item.getAttributeValue("size"));
+                    int start = Integer.valueOf(app_item.getAttributeValue("start"));
+                    
+                    Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,tipo,start);                    
+                    nh.addApplicazione(app);
+                            
+                }
+                
 
                 System.out.println("Creato nodo_host con id: " + nh.getId() + " e gateway:" + nh.getGTW());
 
-                nodes.add(nh);
+                info.addNodo(nh);
 
             }
 
@@ -432,7 +453,7 @@ public class main_app extends javax.swing.JFrame {
                     }
                 }
 
-                nodes.add(nr);
+                info.addNodo(nr);
                 
                 
 
@@ -453,12 +474,12 @@ public class main_app extends javax.swing.JFrame {
                     int nodo_finale = Integer.valueOf(branch.getAttributeValue("end"));
                     String tipo = branch.getAttributeValue("tipo");
                     link_extended l = new link_extended(nodo_iniziale,nodo_finale,metric);
-                    links.add(l);
+                    info.addLink(l);
                     
                     if(tipo.equals("full"))
                     {
                         link_extended l1 = new link_extended(nodo_finale,nodo_iniziale,metric);
-                        links.add(l1);
+                        info.addLink(l1);
                         
                     }
                 }

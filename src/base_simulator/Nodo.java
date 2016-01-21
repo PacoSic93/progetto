@@ -30,6 +30,19 @@ public class Nodo extends Entita{
     protected NetworkLayer myNetLayer;
     protected TransportLayer myTransportLayer;
     
+    
+    protected ArrayList <Applicazione> apps;
+    
+    protected Infos info = null;
+
+    public Infos getInfo() {
+        return info;
+    }
+
+    public void setInfo(Infos info) {
+        this.info = info;
+    }
+    
     //Grafo della rete
     protected Grafo network;
     
@@ -53,12 +66,20 @@ public class Nodo extends Entita{
         this.myLinkLayer.connectLinkLayer(this.myPhyLayer,this.myNetLayer,this);
         this.myNetLayer.connectNetworkLayer(this.myTransportLayer,this.myLinkLayer,this);
         this.myTransportLayer.connectTransportLayer(this.myNetLayer, this);
+        
+        
+        this.apps = new ArrayList<Applicazione>();
     }
     
     /**Questo netodo andrà esteso dalle classi figlie e serve per gestire
        i comportamenti del nodo all'arrivo di un messaggio*/
     public void Handler(Messaggi m){
                
+    }
+    
+    public void addApplicazione(Applicazione a)
+    {
+        this.apps.add(a);
     }
     
     public int returnID(){
@@ -97,6 +118,8 @@ public class Nodo extends Entita{
     {
         return myChannels.get(channelId);
     }
+
+    
 
     
     

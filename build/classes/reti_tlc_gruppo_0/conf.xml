@@ -15,8 +15,8 @@ and open the template in the editor.
     <canale id="2" tipo="WIRED" capacita="5000000" dim_pacchetto = "1526" tempo_propagazione = "10"></canale>
 </canali>
     <nodo_host id="0" gateway="3">
-        <application type="simple_source_tcp" rate="100" TON="100" TOFF="0" port="1234" dest="2" size="10" start="1000">
-            
+        <application type="simple_source_tcp" rate="100" TON="100" TOFF="0" port="1234">
+            <file size="10" />
         </application>
         
         <interfaces>

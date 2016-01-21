@@ -447,7 +447,8 @@ private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         physicalLayer pl = new physicalLayer(s, 10);
         LinkLayer ll = new LinkLayer(s, 10);
         NetworkLayerSatellite nl = new NetworkLayerSatellite(s, 10, periodoInfoServices);
-        NodoSatellite n = new NodoSatellite(s, id_nodo, pl, ll, nl, g, "nodoSatellite", numero_spot, periodoInfoServices);
+        TransportLayer tl = new TransportLayer(s,10);
+        NodoSatellite n = new NodoSatellite(s, id_nodo, pl, ll, nl,tl, g, "nodoSatellite", numero_spot, periodoInfoServices);
         return n;
     }
 
@@ -479,7 +480,8 @@ private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         NetworkLayer nl = new netLayer(s, 10);
         //Oggetto router rappresenta l'hap di collegamento
         //Oggetto canaleUplink è il canale condiviso da tutti i terminali
-        nodo_host h = new nodo_host(s, id_nodo, pl, ll, nl, router, canaleUpLink, g, rate);
+        TransportLayer tl = new TransportLayer(s,10);
+        nodo_host h = new nodo_host(s, id_nodo, pl, ll, nl,tl, router, canaleUpLink, g, rate);
         canaleUpLink.addNodiSorgente(h);
         return h;
     }

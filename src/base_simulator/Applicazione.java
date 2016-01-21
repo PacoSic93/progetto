@@ -1,0 +1,98 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package base_simulator;
+
+/**
+ *
+ * @author afsantamaria
+ */
+public class Applicazione {
+     double rate;
+     int TON; 
+     int TOFF;
+     int port;
+     int dest;
+     double size;
+     String tipo;
+     int start;
+
+    public double getRate() {
+        return rate;
+    }
+
+    public void setRate(double rate) {
+        this.rate = rate;
+    }
+
+    public int getTON() {
+        return TON;
+    }
+
+    public void setTON(int TON) {
+        this.TON = TON;
+    }
+
+    public int getTOFF() {
+        return TOFF;
+    }
+
+    public void setTOFF(int TOFF) {
+        this.TOFF = TOFF;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public int getDest() {
+        return dest;
+    }
+
+    public void setDest(int dest) {
+        this.dest = dest;
+    }
+
+    public double getSize() {
+        return size;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
+    }
+
+    public Applicazione(double rate, int TON, int TOFF, int port, int dest, double size, String tipo, int start) {
+        this.rate = rate;
+        this.TON = TON;
+        this.TOFF = TOFF;
+        this.port = port;
+        this.dest = dest;
+        this.size = size;
+        this.tipo = tipo;
+        this.start = start;
+    }
+     
+     
+}

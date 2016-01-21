@@ -94,8 +94,11 @@ public class nodo_host extends Nodo{
     private double tempo_propagazione; //= 1; //mms
     private double rate;
     
-    public nodo_host(scheduler s,int id_nodo,physicalLayer myPhyLayer,LinkLayer myLinkLayer,NetworkLayer myNetLayer,Object myRouter,canale canaleUplink,Grafo network,double rate) {
-        super(s,id_nodo,myPhyLayer,myLinkLayer,myNetLayer,network,"nodo host");
+    public nodo_host(scheduler s,int id_nodo,
+            physicalLayer myPhyLayer,LinkLayer myLinkLayer,NetworkLayer myNetLayer,TransportLayer myTransportLayer,
+            Object myRouter,canale canaleUplink,Grafo network,double rate) {
+        
+        super(s,id_nodo,myPhyLayer,myLinkLayer,myNetLayer,myTransportLayer,network,"nodo host");
         this.myRouter = myRouter;
         this.rate = rate;
         this.myChannels.add(canaleUplink);

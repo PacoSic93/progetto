@@ -21,9 +21,12 @@ public class NodoSatellite extends Nodo{
     Vector<Spot> my_spot;    
     double tempo_trasmissione;
     
-    public NodoSatellite(scheduler s,int id_nodo,physicalLayer myPhyLayer,LinkLayer myLinkLayer,NetworkLayerSatellite myNetLayer,Grafo network,String tipo,int numero_spot,double periodoInfoServices){
-            super(s,id_nodo,myPhyLayer,myLinkLayer,myNetLayer,network,tipo);
-            this.numero_spot=numero_spot;
+    public NodoSatellite(scheduler s,int id_nodo,
+            physicalLayer myPhyLayer,LinkLayer myLinkLayer,NetworkLayerSatellite myNetLayer,TransportLayer myTransportLayer,
+            Grafo network,String tipo,int numero_spot,double periodoInfoServices){
+    
+            super(s,id_nodo,myPhyLayer,myLinkLayer,myNetLayer,myTransportLayer,network,tipo);
+            this.numero_spot = numero_spot;
             my_spot = new Vector<Spot>();
             /*Create the needed spots and put them into the spot tail*/ 
             for(int i = 0;i<numero_spot;i++){

@@ -5,6 +5,7 @@
  */
 package reti_tlc_gruppo_0;
 
+import base_simulator.Infos;
 import base_simulator.Grafo;
 import base_simulator.Messaggi;
 import base_simulator.Nodo;
@@ -28,7 +29,15 @@ public class nodo_router extends Nodo{
     final String ROUTING_STR_ROUND = "round"; //Le tabelle sono aggiornate di passo in passo seguendo il protocollo
     /**/
     
-    
+    private Infos info = null;
+
+    public Infos getInfo() {
+        return info;
+    }
+
+    public void setInfo(Infos info) {
+        this.info = info;
+    }
     
     private ArrayList<NetworkInterface> my_interface = null;
     private int gatewayId; //router di default
