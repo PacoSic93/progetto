@@ -24,12 +24,21 @@ public class NetworkInterface {
     private String ipv4;
     private int channel_idx;
     private int dest;
-
-    public NetworkInterface(int id, String ipv4, int dest, int channel_idx) {
+    private double metrica;
+    public NetworkInterface(int id, String ipv4, int dest, int channel_idx,double metrica) {
         this.id = id;
         this.ipv4 = ipv4;
         this.channel_idx = channel_idx;
         this.dest = dest;
+        this.metrica = metrica;
+    }
+
+    public double getMetrica() {
+        return metrica;
+    }
+
+    public void setMetrica(double metrica) {
+        this.metrica = metrica;
     }
     
     public int getDest()

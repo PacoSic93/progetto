@@ -360,9 +360,10 @@ public class main_app extends javax.swing.JFrame {
                         String IP = ((Element) obj_interfaccia).getAttributeValue("IP");
                         int dest = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("dest"));
                         int channelId = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("canale"));
-
-                        NetworkInterface nic = new NetworkInterface(if_id, IP, dest,channelId);
+                        double metrica = Double.valueOf(((Element) obj_interfaccia).getAttributeValue("metrica"));
+                        NetworkInterface nic = new NetworkInterface(if_id, IP, dest,channelId,metrica);
                         nh.addNIC(nic);
+ //TODO:Da fare inserimento statico delle entry nelle tabelle di routing, sulle interfacce dei vicini                        
                     }
                 }
                 
@@ -445,10 +446,14 @@ public class main_app extends javax.swing.JFrame {
                         String IP = ((Element) obj_interfaccia).getAttributeValue("IP");
                         int channelId = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("canale"));
                         int dest = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("dest"));
-                        NetworkInterface nic = new NetworkInterface(if_id, IP, dest ,channelId);
+                        double metrica = Double.valueOf(((Element) obj_interfaccia).getAttributeValue("metrica"));
+                        NetworkInterface nic = new NetworkInterface(if_id, IP, dest,channelId,metrica);
                         nr.addNIC(nic);
                     }
                 }
+                
+                //TODO:Da fare inserimento statico delle entry nelle tabelle di routing, sulle interfacce dei vicini
+                
 
                 listElement1 = ((Element) routers_list).getChildren("vicini");
                 for (Object vicini_list : listElement1) {
