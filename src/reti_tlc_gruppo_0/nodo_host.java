@@ -5,6 +5,7 @@
  */
 package reti_tlc_gruppo_0;
 
+import base_simulator.NetworkInterface;
 import base_simulator.Infos;
 import base_simulator.Applicazione;
 import base_simulator.Grafo;
@@ -35,6 +36,7 @@ public class nodo_host extends Nodo {
         return info;
     }
 
+    @Override
     public void setInfo(Infos info) {
         this.info = info;
     }
@@ -53,7 +55,14 @@ public class nodo_host extends Nodo {
         s.insertMessage(m);
     }
 
+    /**
+     * Invio il messaggio al canale prendendo quello corretto dalle informazioni delle NICs
+     * Configurate nel file di configurazione
+     * 
+     * @param m 
+     */
     private void inviaMessaggioACanale(Messaggi m) {
+//TODO: Si può aggiungere la possibilità di aggiungere nuove informazioni a runtime        
         int channel_id = 0;
         NetworkInterface i = null;
         for(Object interface_element : nics)

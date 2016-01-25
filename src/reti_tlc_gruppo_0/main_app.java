@@ -5,10 +5,10 @@
  */
 package reti_tlc_gruppo_0;
 
+import base_simulator.NetworkInterface;
 import base_simulator.Infos;
 import base_simulator.Applicazione;
-import base_simulator.Link;
-import base_simulator.Nodo;
+import base_simulator.Grafo;
 import base_simulator.canale;
 import base_simulator.layers.LinkLayer;
 import base_simulator.layers.NetworkLayer;
@@ -20,7 +20,6 @@ import base_simulator.scheduler;
 import java.io.File;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
 
@@ -42,7 +41,7 @@ public class main_app extends javax.swing.JFrame {
     private static scheduler s;
 
     private static void init_sim_parameters() {
-        s = new scheduler(10000, false);
+        s = new scheduler(100000, false);
     }
 
     private String conf_file_path;
@@ -331,29 +330,37 @@ public class main_app extends javax.swing.JFrame {
             listElement = rootElement.getChildren("nodo_host");
 
             for (Object nodo : listElement) {
+                
                 int id = Integer.valueOf(((Element) nodo).getAttributeValue("id"));
                 int gateway = Integer.valueOf(((Element) nodo).getAttributeValue("gateway"));
-
+                int numero_nodi = Integer.parseInt(((Element) nodo).getAttributeValue("net_size"));
+                Grafo grafo = new Grafo(numero_nodi);
+                
                 physicalLayer pl = new physicalLayer(s, 0.0);
                 LinkLayer ll = new LinkLayer(s, 0.0);
-                NetworkLayer nl = new NetworkLayer(s, 0.0);
+                netLayerLinkState nl = new netLayerLinkState(s, 0.0,grafo);
                 TransportLayer tl = new TransportLayer(s,0.0);
 
-                nl.setDefaultGateway(gateway);
+                
                 nodo_host nh = new nodo_host(s, id, pl, ll, nl,tl, null, "nodo_host", gateway);
 
                 pl.connectPhysicalLayer(ll, nh);
                 ll.connectLinkLayer(pl, nl, nh);
                 nl.connectNetworkLayer(tl,ll, nh);
                 tl.connectTransportLayer(nl, nh);
+                
+                //Setto gli elementi relativi al networking
+                nl.setDefaultGateway(gateway);
 
 //                Element node = (Element) listElement.get(i);
 //                List listElement1 = node.getChildren("canale");
                 List listElement1 = ((Element) nodo).getChildren("interfaces");
-
+                
+                
                 for (Object interfaces_list : listElement1) {
+                    
                     List intertace_list = ((Element) interfaces_list).getChildren("interface");
-
+                                        
                     for (Object obj_interfaccia : intertace_list) {
                         System.out.println("idinterfaccia:" + ((Element) obj_interfaccia).getAttributeValue("id"));
                         int if_id = Integer.valueOf(((Element) obj_interfaccia).getAttributeValue("id"));
@@ -363,7 +370,15 @@ public class main_app extends javax.swing.JFrame {
                         double metrica = Double.valueOf(((Element) obj_interfaccia).getAttributeValue("metrica"));
                         NetworkInterface nic = new NetworkInterface(if_id, IP, dest,channelId,metrica);
                         nh.addNIC(nic);
- //TODO:Da fare inserimento statico delle entry nelle tabelle di routing, sulle interfacce dei vicini                        
+ //TODO:Da fare inserimento statico delle entry nelle tabelle di routing, sulle interfacce dei vicini 
+ /**
+  * La entry dovrebbe essere del tipo
+  * DEST NEXTHOP COSTO
+  * dest dest    metrica
+  */
+                        nl.addRoutingTableEntry(dest,dest,metrica);
+                        
+                        grafo.setCosto(nh.getId(), dest, metrica);
                     }
                 }
                 
@@ -397,22 +412,30 @@ public class main_app extends javax.swing.JFrame {
             listElement = rootElement.getChildren("router");
 
             for (Object routers_list : listElement) {
-                int id = Integer.valueOf(((Element) routers_list).getAttributeValue("id"));
+                
+                
+                int node_id = Integer.valueOf(((Element) routers_list).getAttributeValue("id"));
                 int gateway = Integer.valueOf(((Element) routers_list).getAttributeValue("gateway"));
+                int numero_nodi = Integer.parseInt(((Element) routers_list).getAttributeValue("net_size"));
+                Grafo grafo = new Grafo(numero_nodi);
                 
                 physicalLayer pl = new physicalLayer(s, 0.0);
                 LinkLayer ll = new LinkLayer(s, 0.0);
-                NetworkLayer nl = new NetworkLayer(s, 0.0);
+                netLayerLinkState nl = new netLayerLinkState(s, 0.0, grafo);
                 TransportLayer tl = new TransportLayer(s,0.0);
                 
-                nl.setDefaultGateway(gateway);
-                nodo_router nr = new nodo_router(s, id, pl, ll, nl, tl,null, "nodo_router", 0);
-
+                
+                nodo_router nr = new nodo_router(s, node_id, pl, ll, nl, tl,null, "nodo_router", 0);
+//PHY
                 pl.connectPhysicalLayer(ll, nr);
+//LL                
                 ll.connectLinkLayer(pl, nl, nr);
-                nl.connectNetworkLayer(tl,ll, nr);
+//NET                
+                nl.connectNetworkLayer(tl,ll, nr);                
+                nl.setDefaultGateway(gateway);
+//TRASP                
                 tl.connectTransportLayer(nl, nr);
-
+                
                 System.out.println("Ho aggiunto un " + nr.getTipo() + " con id..:" + nr.getId());
 
                 List protocol_list = ((Element) routers_list).getChildren("protocol");
@@ -437,6 +460,14 @@ public class main_app extends javax.swing.JFrame {
                 
                 
                 List listElement1 = ((Element) routers_list).getChildren("interfaces");
+                
+                
+                
+                
+                //Faccio la clear dei rami allocati e alloco una nuova struttura dati
+                //popolo il grafo solo con i propri vicini                
+                
+                
                 for (Object interfaces_list : listElement1) {
                     List intertace_list = ((Element) interfaces_list).getChildren("interface");
 
@@ -449,24 +480,36 @@ public class main_app extends javax.swing.JFrame {
                         double metrica = Double.valueOf(((Element) obj_interfaccia).getAttributeValue("metrica"));
                         NetworkInterface nic = new NetworkInterface(if_id, IP, dest,channelId,metrica);
                         nr.addNIC(nic);
+                        
+                        //Inserimento dati di routing
+ /**
+  * La entry dovrebbe essere del tipo
+  * DEST NEXTHOP COSTO
+  * dest dest    metrica
+  */
+                        nl.addRoutingTableEntry(dest,dest,metrica);
+                        
+//Popolazione iniziale topologia                        
+                        grafo.setCosto(nr.getId(), dest, metrica);
+                        
                     }
                 }
-                
-                //TODO:Da fare inserimento statico delle entry nelle tabelle di routing, sulle interfacce dei vicini
-                
-
-                listElement1 = ((Element) routers_list).getChildren("vicini");
-                for (Object vicini_list : listElement1) {
-                    List listElement2 = ((Element) vicini_list).getChildren("nodo");
-                    for (Object nodo_elements : listElement2) {
-                        Element item = (Element) nodo_elements;
-                        int n_id = Integer.valueOf(item.getAttributeValue("id"));
-                        int if_id = Integer.valueOf(item.getAttributeValue("interface"));
-
-                        nr.addNeighbour(n_id, if_id);
-
-                    }
-                }
+//                
+//                //TODO:Da fare inserimento statico delle entry nelle tabelle di routing, sulle interfacce dei vicini
+//                
+//
+//                listElement1 = ((Element) routers_list).getChildren("vicini");
+//                for (Object vicini_list : listElement1) {
+//                    List listElement2 = ((Element) vicini_list).getChildren("nodo");
+//                    for (Object nodo_elements : listElement2) {
+//                        Element item = (Element) nodo_elements;
+//                        int n_id = Integer.valueOf(item.getAttributeValue("id"));
+//                        int if_id = Integer.valueOf(item.getAttributeValue("interface"));
+//
+//                        nr.addNeighbour(n_id, if_id);
+//
+//                    }
+//                }
 
                 info.addNodo(nr);
                 

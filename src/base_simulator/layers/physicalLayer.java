@@ -36,7 +36,9 @@ public class physicalLayer extends Entita {
     
     
     
-    /** Creates a new instance of physicalLayer */
+    /** Creates a new instance of physicalLayer
+     * @param s
+     * @param tempo_processamento_bit */
     public physicalLayer(scheduler s,double tempo_processamento_bit) {
         super(s,"Physical Layer");
         this.s = s;
@@ -53,7 +55,9 @@ public class physicalLayer extends Entita {
      basterà sovrascrivere i metodi di passaggio ai livelli successivi quindi
      *inviaAlinkLayer(Messaggi m)
      *inviaAnodo(Messaggi m)
+     * @param m
      */
+    @Override
     public void Handler(Messaggi m)
     {
         //System.out.println("\nIl messaggio è arrivato a livello fisico");

@@ -17,8 +17,6 @@ package base_simulator.layers;
 
 import base_simulator.*;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
 
 
 
@@ -38,6 +36,7 @@ public class NetworkLayer extends Entita{
     
     //Da utilizzare per calcolare i percorsi per raggiungere le destinazioni
     protected Decisioner decisioner; 
+    protected Grafo myGrafo;
     
     /*Inizio variabili statistiche*/      
     private float nr_richieste_accettate = 0;
@@ -45,10 +44,10 @@ public class NetworkLayer extends Entita{
     private float nr_servizi_chiusi = 0;
     private float nr_servizi_aperti = 0;
     
-    private int nr_pkt_prt = 0;
+    public int nr_pkt_prt = 0;
     private int nr_pkt_dati = 0;
     
-    private float delay_medio_pkt_prt = 0;
+    public float delay_medio_pkt_prt = 0;
     private float delay_medio_pkt_dati = 0;
     private float jitter_medio = 0;
     private double arrivo_pkt_prec;
@@ -57,17 +56,24 @@ public class NetworkLayer extends Entita{
     private int terminali_attivati = 0;
     
     
-    /** Creates a new instance of TransportLayer */
-    public NetworkLayer(scheduler s,double tempo_di_processamento) {
+    /** Creates a new instance of TransportLayer
+     * @param s
+     * @param tempo_di_processamento
+     * @param grafo */
+    public NetworkLayer(scheduler s,double tempo_di_processamento,Grafo grafo) {
         super(s,"Network Layer");
         this.s = s;
         this.tempo_di_processamento = tempo_di_processamento;
                 
         this.myRoutingTable = new tabellaRouting();
-        this.decisioner = new Decisioner(this.myRoutingTable);
+        
+        this.myGrafo = grafo;
+        
+        
     }
     
     /*Gestisce il pacchetto e il comportamento del nodo*/
+    @Override
     public void Handler(Messaggi m){
         //System.out.println("\nMessaggio giunto al NetworkLayer");
         if(m.isData)
@@ -76,15 +82,23 @@ public class NetworkLayer extends Entita{
             gestisciPacchettoProtocollo(m);
     }
     
-    /**Utilizzo questo metodo per connettere la pila protocollare*/
+    /**Utilizzo questo metodo per connettere la pila protocollar
+     * @param transportLayer
+     * @param linkLayer
+     * @param nodo
+     */
     public void connectNetworkLayer(TransportLayer transportLayer,LinkLayer linkLayer,Object nodo){
         this.linkLayer = linkLayer;
         this.nodo = nodo;
         this.transportLayer = transportLayer;
+        
+        this.decisioner = new Decisioner(this.myRoutingTable,myGrafo,((Nodo)nodo).getId());
     }
 
     /**Viene gestito dalla classe che deve estendere il livello rete
-       deve gestire la ricezione dei pacchetti dati*/
+       deve gestire la ricezione dei pacchetti dat
+     * @param m
+     */
     public void gestisciPacchettoDati(Messaggi m) {
         System.out.println("\nE' arrivato un messaggio dati nel nodo "+((Nodo)this.nodo).getTipo()+" ID:"+((Nodo)this.nodo).getId()+"a livello di rete");
         if(m.saliPilaProtocollare == false)
@@ -102,7 +116,7 @@ public class NetworkLayer extends Entita{
         {
             //Aggiorna Statistiche
             this.nr_pkt_dati++;
-            this.delay_medio_pkt_dati +=Float.valueOf(""+(s.orologio.getCurrent_Time()-m.getTempo_di_partenza())).floatValue();
+            this.delay_medio_pkt_dati +=Float.parseFloat(""+(s.orologio.getCurrent_Time()-m.getTempo_di_partenza()));
             this.jitter_medio +=s.orologio.getCurrent_Time()-arrivo_pkt_prec;
             this.arrivo_pkt_prec = s.orologio.getCurrent_Time();
             if(((Nodo)this.nodo).getTipo().contains("host"))
@@ -134,6 +148,7 @@ public class NetworkLayer extends Entita{
      * 
      * Viene gestito dalla classe che deve estendere il livello rete
        deve gestire i messaggi di protocollo
+     * @param m
     */
     public void gestisciPacchettoProtocollo(Messaggi m) {
         if (m.getTipo_Messaggio().equals("controlla coda")) {
@@ -179,5 +194,15 @@ public class NetworkLayer extends Entita{
 
     public void setDefaultGateway(int gateway) {
         this.decisioner.setDefault_gateway(gateway);
+    }
+
+    /**
+     * Aggiungo una destinazione alla tabella di routing attraverso il decisioneer
+     * @param dest - Nodo Destinazione
+     * @param next_hop
+     * @param costo
+     */
+    public void addRoutingTableEntry(int dest, int next_hop, double costo) {
+        decisioner.addRoutingEntry(dest,next_hop,costo);
     }
 }

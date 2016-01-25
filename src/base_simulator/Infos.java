@@ -5,10 +5,6 @@
  */
 package base_simulator;
 
-import base_simulator.Link;
-import base_simulator.Nodo;
-import base_simulator.canale;
-import base_simulator.link_extended;
 import java.util.ArrayList;
 
 /**

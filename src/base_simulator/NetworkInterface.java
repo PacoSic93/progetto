@@ -3,9 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package reti_tlc_gruppo_0;
-
-import java.util.ArrayList;
+package base_simulator;
 
 /**
  * Abstraction of Interface Adapter

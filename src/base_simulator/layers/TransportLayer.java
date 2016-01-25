@@ -16,7 +16,6 @@ import java.util.ArrayList;
  */
 public class TransportLayer extends Entita {
 
-    
     protected NetworkLayer networkLayer;
     protected double tempo_di_processamento;
     protected Object nodo;
@@ -51,28 +50,22 @@ public class TransportLayer extends Entita {
     public void Handler(Messaggi m) {
         if (m.getTipo_Messaggio().toLowerCase().equals("applicazione")) {
             if (isAvailable(m.getApplication_port())) {
-               System.out.println("I:"+this.getTipo()+" : Arrivato messaggio applicazione con ID "+m.getID()+" Sulla porta :"+m.getApplication_port());
-               if(m.saliPilaProtocollare == false)
-               {
-                   try
-                   {
-                   //Da inviare pacchetto al networkLayer
-                   m.addHeader(this.header_size);
-                   m.setSorgente(this);
-                   m.setDestinazione(this.networkLayer);
-                   m.shifta(tempo_di_processamento);
-                   s.insertMessage(m);
-                   }
-                   catch(Exception e)
-                   {
-                       e.printStackTrace();
-                   }
-               }
-               else
-               {
-                   //Il pacchetto è stato ricevuto
-                   m.removeHeader(this.header_size);
-               }
+                System.out.println("I:" + this.getTipo() + " : Arrivato messaggio applicazione con ID " + m.getID() + " Sulla porta :" + m.getApplication_port());
+                if (m.saliPilaProtocollare == false) {
+                    try {
+                        //Da inviare pacchetto al networkLayer
+                        m.addHeader(this.header_size);
+                        m.setSorgente(this);
+                        m.setDestinazione(this.networkLayer);
+                        m.shifta(tempo_di_processamento);
+                        s.insertMessage(m);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //Il pacchetto è stato ricevuto
+                    m.removeHeader(this.header_size);
+                }
             }
         }
     }

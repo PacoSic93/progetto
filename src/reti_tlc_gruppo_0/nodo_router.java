@@ -5,6 +5,7 @@
  */
 package reti_tlc_gruppo_0;
 
+import base_simulator.NetworkInterface;
 import base_simulator.Infos;
 import base_simulator.Grafo;
 import base_simulator.Messaggi;
@@ -132,6 +133,7 @@ public class nodo_router extends Nodo{
         s.insertMessage(m);
     }
     
+    @Override
     public void Handler(Messaggi m){
        if(m.saliPilaProtocollare == true)
        {
@@ -163,6 +165,20 @@ public class nodo_router extends Nodo{
         return this.gatewayId;
     }
     
+  
+   
+    
+    
+    
+    
+//****Deprecati i metodi sui vicini non sono attualmente gestiti refuso******//
+//Tutta la gestione è stata spostata sulle NICs    
+/**
+ * 
+ * @param idneighbour
+ * @return 
+ */     
+    
     public void addNeighbour(int neighbour)
     {
         this.neighbours.add(neighbour);
@@ -191,5 +207,7 @@ public class nodo_router extends Nodo{
         this.addNeighbour(n_id);
         this.nics.get(if_id).addDest(n_id);
     }
+
+
     
 }

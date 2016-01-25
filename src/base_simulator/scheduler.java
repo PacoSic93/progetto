@@ -11,14 +11,9 @@
 package base_simulator;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.io.*;
-import test1.*;
-import base_simulator.layers.*;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-import javax.swing.JDialog;
-import javax.swing.JProgressBar;
 /**
  *
  * @author franco
@@ -41,7 +36,7 @@ public class scheduler implements Runnable{
     double max_Time;
     
     /**Serve per risolvere gli indirizzi tipo DNS*/
-    public ArrayList<appartenenzaHostNodi> appartenenze;
+//    public ArrayList<appartenenzaHostNodi> appartenenze;
     
     private int id_servizio = 0;
     private int id_Multicast;
@@ -74,19 +69,19 @@ public class scheduler implements Runnable{
 
     
     //Deprecato
-    public scheduler(double orizzonte_temporale,boolean traced,ArrayList<appartenenzaHostNodi> appartenenze) {
-        //Inizializza il multicast ID
-                        
-        id_Multicast = 1;        
-        buffer = new ArrayList<Messaggi>();
-        this.traced = traced;
-        cicla = true;
-        orologio = new Timer();
-        this.max_Time = orizzonte_temporale;
-        this.appartenenze = appartenenze;
-        if(traced)
-            Trace = new trace(this);        
-    }
+//    public scheduler(double orizzonte_temporale,boolean traced,ArrayList<appartenenzaHostNodi> appartenenze) {
+//        //Inizializza il multicast ID
+//                        
+//        id_Multicast = 1;        
+//        buffer = new ArrayList<Messaggi>();
+//        this.traced = traced;
+//        cicla = true;
+//        orologio = new Timer();
+//        this.max_Time = orizzonte_temporale;
+//        this.appartenenze = appartenenze;
+//        if(traced)
+//            Trace = new trace(this);        
+//    }
     
     public scheduler(double orizzonte_temporale,boolean traced)
     {
@@ -96,7 +91,7 @@ public class scheduler implements Runnable{
         cicla = true;
         orologio = new Timer();
         this.max_Time = orizzonte_temporale;
-        this.appartenenze = new ArrayList<appartenenzaHostNodi>(); //Da non usare
+//        this.appartenenze = new ArrayList<appartenenzaHostNodi>(); //Da non usare
         if(traced)
             Trace = new trace(this);        
     }
@@ -186,53 +181,47 @@ public class scheduler implements Runnable{
             m2 = m.getDestinazione().getClass().getDeclaredMethod("Handler",args1);    
             
         } catch (SecurityException ex) {
-            ex.printStackTrace();
         } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
         }
         
         try {
             
             m2.invoke(m.getDestinazione(),m);
         } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
         } catch (InvocationTargetException ex) {
-            ex.printStackTrace();
         } catch (IllegalAccessException ex) {
-            ex.printStackTrace();
         }
         
         
     }
 
-    /**Questo metodo ritorna il nodo di appartenenza di un host*/
-    public Object trovaNodoApp(int idD) {
-        boolean trovato = false;
-        Object nodo = null;
-        for(int i = 0;i<this.appartenenze.size() && !trovato;i++){
-            if((((nodo_host)this.appartenenze.get(i).getDestinazioneHost()).getId()) == idD){
-                trovato = true;
-                nodo = this.appartenenze.get(i).getNodo();
-            }
-        }
-        return nodo;
-    }
-    
-    //Ritorna tutti gli host appartenenti alla sottorete di un router
-    public Vector<Object> trovaHosts(Object n){
-        Vector<Object> myHosts = new Vector<Object>();
-        for(int i = 0;i<this.appartenenze.size();i++){
-            if(appartenenze.get(i).getNodo() == n)
-                myHosts.addElement(appartenenze.get(i).getDestinazioneHost());
-        }
-        return myHosts;
-    }
-            
+//    /**Questo metodo ritorna il nodo di appartenenza di un host*/
+//    public Object trovaNodoApp(int idD) {
+//        boolean trovato = false;
+//        Object nodo = null;
+//        for(int i = 0;i<this.appartenenze.size() && !trovato;i++){
+//            if((((nodo_host)this.appartenenze.get(i).getDestinazioneHost()).getId()) == idD){
+//                trovato = true;
+//                nodo = this.appartenenze.get(i).getNodo();
+//            }
+//        }
+//        return nodo;
+//    }
+//    
+//    //Ritorna tutti gli host appartenenti alla sottorete di un router
+//    public Vector<Object> trovaHosts(Object n){
+//        Vector<Object> myHosts = new Vector<Object>();
+//        for(int i = 0;i<this.appartenenze.size();i++){
+//            if(appartenenze.get(i).getNodo() == n)
+//                myHosts.addElement(appartenenze.get(i).getDestinazioneHost());
+//        }
+//        return myHosts;
+//    }
+//            
 
     private String getData() {
         d = new Date();
-        
-        
+       
         int giorno = d.getDate();
         int mese = d.getMonth()+1;
         int anno = d.getYear()+1900;
@@ -240,6 +229,8 @@ public class scheduler implements Runnable{
         int ora = d.getHours();
         int minuti = d.getMinutes();
         int secondi = d.getSeconds();
+        
+      
         String s = giorno+"/"+mese+"/"+anno+ " ora "+ora+":"+minuti+":"+secondi;
         return s;
     }

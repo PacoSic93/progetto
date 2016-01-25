@@ -92,7 +92,13 @@ public class tabellaRouting
 		return pos;
 	}
 
-    int getNextHop(int dest) {
+    /**
+     * Ritorna il next hop di una destinazione aggiunta sia tramite informazioni statiche (Conf.xml) che attraverso
+     * informazioni di routing dinamiche (Protocollo di routing)
+     * @param dest - Nodo destinazine da raggingere
+     * @return
+     */
+    public int getNextHop(int dest) {
         int res = -1;
         for(Object linea : entries)
         {
@@ -103,5 +109,24 @@ public class tabellaRouting
             }
         }
         return res;
+    }
+
+    void removeEntries() {
+        this.entries.clear();
+    }
+    
+    
+    public ArrayList<Integer> getNeighbours()
+    {
+        ArrayList<Integer> nodes = new ArrayList<Integer>();
+        for(Object linea : entries)
+        {
+            if(((RoutingRow)linea).getNodoDestinazione() == ((RoutingRow)linea).getNextHop())
+            {
+                nodes.add(((RoutingRow)linea).getNextHop());
+            }
+        }
+        return nodes;
+        
     }
 }
