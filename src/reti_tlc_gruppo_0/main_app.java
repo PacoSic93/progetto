@@ -449,10 +449,15 @@ public class main_app extends javax.swing.JFrame {
                     
                     if (tipo.equals("OSPF")) {
                         TTL = Integer.valueOf(item.getAttributeValue("TTL"));
+                        
+                        nl.enableFullOSPF();
+                        nl.setTTL_LSA(TTL);
                     }
 
                     String routing = item.getAttributeValue("ROUTING");
-
+/**
+ * TODO : These parameters may be erased, The routing rules are moved to nl specialization
+ */
                     nr.setProtocol(tipo);
                     nr.setRouting(routing);
                     nr.setTTL(TTL);

@@ -99,8 +99,10 @@ public class NetworkLayer extends Entita{
        deve gestire la ricezione dei pacchetti dat
      * @param m
      */
-    public void gestisciPacchettoDati(Messaggi m) {
-        System.out.println("\nE' arrivato un messaggio dati nel nodo "+((Nodo)this.nodo).getTipo()+" ID:"+((Nodo)this.nodo).getId()+"a livello di rete");
+    public void gestisciPacchettoDati(Messaggi m) {   
+        String msg_info = "E' arrivato un messaggio dati nel nodo";        
+        super.stampaInformazione("I", ((Nodo)this.nodo).getId(), msg_info);
+        
         if(m.saliPilaProtocollare == false)
         {
             //Il livello rete ha il compito di trovare la destinazione
@@ -125,7 +127,9 @@ public class NetworkLayer extends Entita{
                //TODO : Invia il pacchetto al livello superiore se non sono router
                 if(((Nodo)m.getNodoDestinazione()).getId() == ((Nodo)this.nodo).getId())
                 {
-                    System.out.println("********Messaggio giunto a destinazione*******");
+                    
+                    msg_info = "********Messaggio giunto a destinazione*******";        
+                    super.stampaInformazione("I", ((Nodo)this.nodo).getId(), msg_info);
                 }
             }
             else

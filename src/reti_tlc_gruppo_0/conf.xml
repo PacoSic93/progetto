@@ -15,7 +15,18 @@ and open the template in the editor.
     <canale id="2" tipo="WIRED" capacita="5000000" dim_pacchetto = "1526" tempo_propagazione = "10"></canale>
 </canali>
     <nodo_host id="0" gateway="2" net_size="4">
-        <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="2" size="0.001500" pckt_size="1460.0" start="30000" >
+        <!--
+        type : Specializzazione applicazione
+        rate : parametro ingresso applicazione
+        TON : periodo di ON in caso di burst
+        TOFF: periodo di off in caso di burstness
+        port: Porta Applicazione livello trasporto
+        size: Dimensione dei dati da trasferire in MegaByte
+        pckt_size : dimensione del pacchetto a livello trasporto
+        start : inizio applicazione in ms
+        dest: destinazione del flusso da dare id di un nodo host
+        -->
+        <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="1" size="0.001500" pckt_size="1460.0" start="30000" >
             
         </application>
         
@@ -26,6 +37,9 @@ and open the template in the editor.
     </nodo_host>
     
     <nodo_host id="1" gateway="3" net_size="4">
+        <!--
+        TODO: Questo campo non è necessario per una destinazione da eliminare
+        -->
         <application type="simple_receiver_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="2" size="5" pckt_size="1460.0" start="30000" >
         </application>
         

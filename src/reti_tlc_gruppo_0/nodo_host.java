@@ -130,7 +130,11 @@ public class nodo_host extends Nodo {
 
         }
     }
-
+/**
+ * This method is used by source to generate application packets, these packets will be sent
+ * to the TransportLayer at first.
+ * @param app 
+ */
     private void gestisciApplicazione(Applicazione app) {
         Nodo dest = info.getNodo(app.getDest());
         double file_size = app.getSize() * 8.0 * 1000000; //Dimensione del file in Mbyte -> lo porto in bit
@@ -140,7 +144,9 @@ public class nodo_host extends Nodo {
         int packet_inter_delay = (int)((pckt_size/rate) * 1000); //riporto interdelay in ms
         if (app.getTipo().toLowerCase().contains("source")) {
             //TODO : CONTROLLARE TIPO TRASPORTO SE TCP INIZIALIZZARE LA TRASMISSIONE CON PROTOCOLLO TCP
-System.out.println("I:"+this.getTipo()+" : INIZIO GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Da generare:"+numero_pckt);
+            String msg_info = "INIZIO GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Da Generare:"+numero_pckt;        
+            super.stampaInformazione("I", super.getId(), msg_info);
+
             //PREPARARE IL TRASPORTO : FRAMMENTAZIONE INFORMAZIONE IN MSS
             int tempo = app.getStart();
             for(int i = 0; i< numero_pckt;i++)
@@ -156,7 +162,9 @@ System.out.println("I:"+this.getTipo()+" : INIZIO GENERAZIONE PACCHETTI ("+app.g
                 tempo = tempo + packet_inter_delay; //tempo di lancio del prossimo paccketto in ms
                 s.insertMessage(m);
             }
-System.out.println("I:"+this.getTipo()+" : FINE GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Generati:"+numero_pckt);            
+            msg_info = "FINE GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Generati:"+numero_pckt;        
+            super.stampaInformazione("I", super.getId(), msg_info);
+
         }
     }
 
