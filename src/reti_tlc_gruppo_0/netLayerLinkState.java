@@ -87,7 +87,7 @@ public class netLayerLinkState extends NetworkLayer {
         m1.isData=false;
         m1.shifta(HELLO_TIMEOUT);
         m1.saliPilaProtocollare = false;
-        s.insertMessage(m1);
+//        s.insertMessage(m1);
 
     }
     

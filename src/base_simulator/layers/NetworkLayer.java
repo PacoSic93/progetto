@@ -110,6 +110,7 @@ public class NetworkLayer extends Entita{
             m.setSorgente(this);
             m.shifta(this.tempo_di_processamento);
             m.setDestinazione(this.linkLayer);
+           
             s.insertMessage(m);
         }
         else
