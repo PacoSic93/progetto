@@ -39,4 +39,9 @@ public class Entita {
         return s;
     }
     
+    
+    public void stampaInformazione(String tipo_messaggio, int id,String messaggio)
+    {
+        System.out.println(tipo_messaggio+":"+s.orologio.getCurrent_Time()+" Tipo Nodo:"+this.tipo+" ID:"+id+" Messaggio:"+messaggio);
+    }
 }

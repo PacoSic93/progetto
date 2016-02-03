@@ -3,43 +3,6 @@ package base_simulator;
 import java.util.ArrayList;
 
 
-class RoutingRow
-{
-	private int nodo_destinazione;
-	private int next_hop;
-	private double costo;
-	
-	public RoutingRow(int nodo_destinazione, int next_hop, double costo)
-	{
-		this.nodo_destinazione = nodo_destinazione;
-		this.next_hop = next_hop;
-		this.costo = costo;
-	}
-	
-	public int getNodoDestinazione()
-	{
-		return this.nodo_destinazione;
-	}
-	
-	public int getNextHop()
-	{
-		return this.next_hop;
-	}
-	
-	public double getCosto()
-	{
-		return this.costo;
-	}
-
-        /**
-         * Setta il costo del link sulla linea destinazione,next_hop
-         * @param costo : Peso del link
-         */
-	public void setCosto(double costo) {	
-		this.costo = costo;
-	}  
-}
-
 public class tabellaRouting
 {
 	private ArrayList<RoutingRow> entries;
@@ -133,6 +96,7 @@ public class tabellaRouting
         return nodes;
         
     }
+
     /**
      * Stampa su standard output la tabella di routing del nodo
      */
@@ -170,5 +134,12 @@ public class tabellaRouting
             }            
         }
         return false;
+
+    }
+    
+    public ArrayList<RoutingRow> getEntries()
+    {
+        return this.entries;
+
     }
 }
