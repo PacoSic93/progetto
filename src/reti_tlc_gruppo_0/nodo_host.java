@@ -132,6 +132,7 @@ public class nodo_host extends Nodo {
     }
 
     private void gestisciApplicazione(Applicazione app) {
+        
         Nodo dest = info.getNodo(app.getDest());
         double file_size = app.getSize() * 8.0 * 1000000; //Dimensione del file in Mbyte -> lo porto in bit
         double pckt_size = app.getPacket_size() * 8; //porto il valore in bit
@@ -158,6 +159,7 @@ System.out.println("I:"+this.getTipo()+" : INIZIO GENERAZIONE PACCHETTI ("+app.g
             }
 System.out.println("I:"+this.getTipo()+" : FINE GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Generati:"+numero_pckt);            
         }
+
     }
 
 }

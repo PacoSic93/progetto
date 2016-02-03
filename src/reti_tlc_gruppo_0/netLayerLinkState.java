@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author afsantamaria
+ * @author Ing. Amilcare Francesco Santamaria
  */
 public class netLayerLinkState extends NetworkLayer {
 
@@ -22,10 +22,23 @@ public class netLayerLinkState extends NetworkLayer {
     final String HELLO_TIMEOUT_MSG = "hello_timeout";
     final int HELLO_TIMEOUT = 15000;
 
+    final String UPDATE_RT_MSG = "update_routing_table";
+    final int UPDATE_ROUTING_TABLE_COLLECTING_TIME = 2000;
+    protected boolean tableIsChanged = false;
+
     public netLayerLinkState(scheduler s, double tempo_di_processamento, Grafo grafo) {
         super(s, tempo_di_processamento, grafo);
         initializeProtocol();
 
+    }
+
+    private void generateCollectingMessage() {
+        Messaggi m = new Messaggi(UPDATE_RT_MSG, this, this, null, s.orologio.getCurrent_Time());
+        m.isData = false;
+        m.shifta(UPDATE_ROUTING_TABLE_COLLECTING_TIME);
+        m.saliPilaProtocollare = false;
+
+        s.insertMessage(m);
     }
 
     /**
@@ -33,28 +46,46 @@ public class netLayerLinkState extends NetworkLayer {
      * Viene gestito dalla classe che deve estendere il livello rete deve
      * gestire i messaggi di protocollo
      *
+     * In questa versione gli hello_greetings sono anche utilizzati per
+     * aggiornare la metrica del nodo In particolare misurando il loro ritardo
+     * E2E sarà possibile aggiornare il peso nella tabella di routing
+     *
      * @param m
      */
     @Override
     public void gestisciPacchettoProtocollo(Messaggi m) {
-        if(m.getTipo_Messaggio().equals(HELLO_TIMEOUT_MSG))
-        {
-            System.out.println("D:"+((Nodo)super.nodo).getTipo()+": T:"+ s.orologio.getCurrent_Time()+": Arrivato messagio di generazione HELLO");
+        if (m.getTipo_Messaggio().equals(HELLO_TIMEOUT_MSG)) {
+            System.out.println("D:" + ((Nodo) super.nodo).getTipo() + ": T:" + s.orologio.getCurrent_Time() + ": Arrivato messagio di generazione HELLO");
             sendHelloGreetingMessage();
-        }
-        else if(m.getTipo_Messaggio().equals(this.HELLO_GREETINGS))
-        {
-            System.out.println("D:"+((Nodo)super.nodo).getTipo()+": ID :"+((Nodo)super.nodo).getId()+" T:"+ s.orologio.getCurrent_Time()+":Arrivato messaggio di HELLO");
-        }
-        
-        else if (m.getTipo_Messaggio().equals("controlla coda")) {
-            System.out.println("Messaggio di controlla coda");
-        }
-        
-        
-        else {
-            super.nr_pkt_prt++;
-            super.delay_medio_pkt_prt += (s.orologio.getCurrent_Time() - m.getTempo_di_partenza());
+        } else if (m.getTipo_Messaggio().equals(this.HELLO_GREETINGS)) {
+            System.out.println("D:" + ((Nodo) super.nodo).getTipo() + ": ID :" + ((Nodo) super.nodo).getId() + " T:" + s.orologio.getCurrent_Time() + ":Arrivato messaggio di HELLO");
+
+            super.myRoutingTable.printTR();
+            int id_nodo_sorgente = ((Nodo) m.getNodoSorgente()).getId();
+
+            if (super.myRoutingTable.controllaPresenzaLinea(id_nodo_sorgente, id_nodo_sorgente) >= 0) {
+                //Vuol dire che la linea è gia presente, dobbiamo aggiornare il peso
+                double new_peso = super.s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
+
+                boolean esito = super.myRoutingTable.setPeso(id_nodo_sorgente, id_nodo_sorgente, new_peso);
+                if(esito == true)
+                   tableIsChanged = true;
+
+            }
+
+        } else if (m.getTipo_Messaggio().equals(UPDATE_RT_MSG)) {
+            System.out.println("D:"+s.orologio.getCurrent_Time()+" Il nodo "+((Nodo)nodo).getId()+" è pronto ad eseguire algoritmo per aggiornare le TR ");
+            if (tableIsChanged == true) {
+                //Update routing table executing routing algorithm
+                System.out.println("TR Aggiornata");
+                tableIsChanged = false;
+            }
+
+            generateCollectingMessage();
+
+        } else {
+            System.out.println("Messaggio non gestibile da Questo Net invio alla classe super");
+            super.gestisciPacchettoDati(m);
         }
     }
 
@@ -72,34 +103,36 @@ public class netLayerLinkState extends NetworkLayer {
 
             s.insertMessage(m);
         }
-        
+
         //prepare next messagge of hello
         Messaggi m1 = new Messaggi(HELLO_TIMEOUT_MSG, this, this, null, s.orologio.getCurrent_Time());
-        m1.isData=false;
+        m1.isData = false;
         m1.shifta(HELLO_TIMEOUT);
         m1.saliPilaProtocollare = false;
         s.insertMessage(m1);
 
     }
 
-    private void initializeProtocol() {
+    private void generateHelloMessage() {
         Messaggi m1 = new Messaggi(HELLO_TIMEOUT_MSG, this, this, null, s.orologio.getCurrent_Time());
-        m1.isData=false;
+        m1.isData = false;
         m1.shifta(HELLO_TIMEOUT);
         m1.saliPilaProtocollare = false;
-//        s.insertMessage(m1);
+        s.insertMessage(m1);
+    }
+
+    private void initializeProtocol() {
+
+        generateHelloMessage();
+        generateCollectingMessage();
 
     }
-    
+
     @Override
-    public void Handler(Messaggi m)
-    {
-        if(!m.isData)
-        {
+    public void Handler(Messaggi m) {
+        if (!m.isData) {
             gestisciPacchettoProtocollo(m);
-        }
-        else
-        {
+        } else {
             super.Handler(m);
         }
     }

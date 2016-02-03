@@ -100,7 +100,8 @@ public class NetworkLayer extends Entita{
      * @param m
      */
     public void gestisciPacchettoDati(Messaggi m) {
-        System.out.println("\nE' arrivato un messaggio dati nel nodo "+((Nodo)this.nodo).getTipo()+" ID:"+((Nodo)this.nodo).getId()+"a livello di rete");
+        System.out.println("\nE' arrivato un messaggio dati nel nodo "+((Nodo)this.nodo).getTipo()+" ID:"+((Nodo)this.nodo).getId()+" a livello di rete");
+        
         if(m.saliPilaProtocollare == false)
         {
             //Il livello rete ha il compito di trovare la destinazione
@@ -155,6 +156,7 @@ public class NetworkLayer extends Entita{
         if (m.getTipo_Messaggio().equals("controlla coda")) {
             System.out.println("Messaggio di controlla coda");
         }
+       
         else 
         {
             this.nr_pkt_prt++;

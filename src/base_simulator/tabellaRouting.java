@@ -31,9 +31,13 @@ class RoutingRow
 		return this.costo;
 	}
 
+        /**
+         * Setta il costo del link sulla linea destinazione,next_hop
+         * @param costo : Peso del link
+         */
 	public void setCosto(double costo) {	
 		this.costo = costo;
-	}
+	}  
 }
 
 public class tabellaRouting
@@ -42,7 +46,7 @@ public class tabellaRouting
 	
 	public tabellaRouting()
 	{
-		entries = new ArrayList<RoutingRow>();
+            entries = new ArrayList<RoutingRow>();
 	}
 	
 	/**
@@ -128,5 +132,43 @@ public class tabellaRouting
         }
         return nodes;
         
+    }
+    /**
+     * Stampa su standard output la tabella di routing del nodo
+     */
+    public void printTR()
+    {
+        System.out.println("\n********************STAMPA TR*******************");
+        System.out.println("|DESTINAZIONE|NEXT HOP|COSTO|");
+        for(Object entry : entries)
+        {
+            RoutingRow obj = (RoutingRow) entry;
+            System.out.println("|"+obj.getNodoDestinazione()+"|"+obj.getNextHop()+"|"+obj.getCosto()+"|");
+        }
+        System.out.println("\n********************FINE STAMPA TR*******************");
+    }
+
+    /**
+     * Setta il peso sulla linea della tabella di routing
+     * @param desinazione : Nodo destinazione
+     * @param next_hop :  Nodo per arrivare alla destinazione
+     * @param new_peso : Nuovo peso da mettere sulla linea
+     * @return Ritorna true se il peso da settare è diverso da quello presente sulla tabella false altrimenti
+     */
+    public boolean setPeso(int desinazione, int next_hop, double new_peso) {
+        for(Object entry : entries)
+        {
+            RoutingRow obj = (RoutingRow) entry;
+            if(obj.getNodoDestinazione() == desinazione && obj.getNextHop() == next_hop)
+            {
+                if(obj.getCosto() != new_peso)
+                {
+                   obj.setCosto(new_peso);
+                   return true;
+                }
+                
+            }            
+        }
+        return false;
     }
 }
