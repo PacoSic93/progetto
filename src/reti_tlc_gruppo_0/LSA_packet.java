@@ -5,6 +5,7 @@
  */
 package reti_tlc_gruppo_0;
 
+import base_simulator.Grafo;
 import base_simulator.RoutingRow;
 import base_simulator.tabellaRouting;
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class LSA_packet {
     int sorgente;
     int rilancio;
     int ttl;
-    tabellaRouting tr;   
+    Grafo topology;   
 
     public int getSeq_no() {
         return seq_no;
@@ -52,31 +53,31 @@ public class LSA_packet {
         this.ttl = ttl;
     }
 
-    public tabellaRouting getTr() {
-        return tr;
+    public Grafo getGrafo() {
+        return topology;
     }
 
-    public void setTr(tabellaRouting tr) {
-        copia_tr(tr);
+    public void setGrafo(Grafo g) {
+        copia_tr(g);
     }
 
-    public LSA_packet(int seq_no, int sorgente, int rilancio, int ttl, tabellaRouting tr) {
+    public LSA_packet(int seq_no, int sorgente, int rilancio, int ttl, Grafo g) {
         this.seq_no = seq_no;
         this.sorgente = sorgente;
         this.rilancio = rilancio;
         this.ttl = ttl;
-        copia_tr(tr);
+        copia_tr(g);
     }
     
-    protected void copia_tr(tabellaRouting tr)
+    protected void copia_tr(Grafo g)
     {
-        ArrayList<RoutingRow> appo = tr.getEntries();
-        
-        for(Object entry : appo)
+        topology = new Grafo(g.getN());
+        for(int i = 0; i<g.getN();i++)
         {
-            tr.addEntry(((RoutingRow)entry).getNodoDestinazione(), 
-                    ((RoutingRow)entry).getNextHop(), 
-                    ((RoutingRow)entry).getCosto());
+            for(int j = 0; j<g.getN();j++)
+            {
+                topology.setCosto(i, j, g.getCosto(i, j));
+            }
         }
     }
     

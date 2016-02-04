@@ -379,6 +379,7 @@ public class main_app extends javax.swing.JFrame {
                         nl.addRoutingTableEntry(dest,dest,metrica);
                         
                         grafo.setCosto(nh.getId(), dest, metrica);
+                        grafo.setCosto(dest,nh.getId(), metrica);
                     }
                 }
                 
@@ -496,6 +497,7 @@ public class main_app extends javax.swing.JFrame {
                         
 //Popolazione iniziale topologia                        
                         grafo.setCosto(nr.getId(), dest, metrica);
+                        grafo.setCosto(dest,nr.getId(), metrica);
                         
                     }
                 }

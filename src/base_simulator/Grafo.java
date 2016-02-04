@@ -81,6 +81,17 @@ public class Grafo
     public void setCosto(int source, int dest,double costo) {
         rami.get(source).set(dest, costo);
     }
+
+    int getPadre(int next_hop) {
+        for(int i = 0; i<n;i++)
+        {
+            if(rami.get(i).get(next_hop)>0)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
     
     
 }

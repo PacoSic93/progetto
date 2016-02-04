@@ -1,16 +1,13 @@
 /**
  * jNET - SIM
  * V-0.1 - BETA RELEASE
- * 
+ *
  * Ing. Amilcare Francesco Santamaria, Ph.D, 2016
  * Last rev. 23/01/2016
- * 
+ *
  * All right reserved - This code can be used only for teaching activities!
  * Using of this full code or portion of it is not allowed for any other scope
  */
-
-
-
 package base_simulator;
 
 import java.util.ArrayList;
@@ -35,7 +32,8 @@ public class Decisioner {
 
     /**
      * Costruttore deprecato
-     * @param tr 
+     *
+     * @param tr
      */
     public Decisioner(tabellaRouting tr) {
         super();
@@ -46,10 +44,15 @@ public class Decisioner {
     }
 
     /**
-     * Cotruttore della classe Decisioner : Questa classe si preoccupa di popolare le tabelle di routing del nodo
-     * @param routingTable - tabelle di instradamento condivisa con il network layer
-     * @param grafo - Rappresentazione astratta della topologia conosciuta dal nodo
-     * @param id - id del nodo che possiede il network layer che istanzia questo decisioner
+     * Cotruttore della classe Decisioner : Questa classe si preoccupa di
+     * popolare le tabelle di routing del nodo
+     *
+     * @param routingTable - tabelle di instradamento condivisa con il network
+     * layer
+     * @param grafo - Rappresentazione astratta della topologia conosciuta dal
+     * nodo
+     * @param id - id del nodo che possiede il network layer che istanzia questo
+     * decisioner
      */
     public Decisioner(tabellaRouting routingTable, Grafo grafo, int id) {
         super();
@@ -98,12 +101,13 @@ public class Decisioner {
     }
 
     /**
-     * Questo metodo permette di aggiornare le tabelle di routing dovrà essere eseguito
-     * dal protocollo di rete che si trova all'interno del network layer.
-     * 
-     * CONSIGLIO:
-     * IMPLEMENTARE UNA CLASSE CHE ESTENDE IL NETWORK LAYER ED EFFTTUARE L'OVERRIDE DEL METODO
-     * GESTISCI PACCHETTO PROTOCOLLO. QUESTO PERMETTERA' DI CAMBIARE A PIACIMENTO IL COMPORTAMENTO DEL ROUTER
+     * Questo metodo permette di aggiornare le tabelle di routing dovrà essere
+     * eseguito dal protocollo di rete che si trova all'interno del network
+     * layer.
+     *
+     * CONSIGLIO: IMPLEMENTARE UNA CLASSE CHE ESTENDE IL NETWORK LAYER ED
+     * EFFTTUARE L'OVERRIDE DEL METODO GESTISCI PACCHETTO PROTOCOLLO. QUESTO
+     * PERMETTERA' DI CAMBIARE A PIACIMENTO IL COMPORTAMENTO DEL ROUTER
      */
     public void updateRoutingTable() {
         //Devo Eseguire algoritmo di Routing
@@ -131,7 +135,7 @@ public class Decisioner {
             rigapesi[i] = 9999.0; //-1 indica il peso infinito
         }
         rigapesi[myId] = 0.0;
-        
+
         while (!nodes.isEmpty()) {
             for (Object n : N) {
                 int source = (Integer) n;
@@ -144,7 +148,13 @@ public class Decisioner {
                         if (value < rigapesi[dest]) {
                             //Ho trovato un costo inferiore
                             rigapesi[dest] = value;
+                            int padre = dijkstra.getPadre(dest);
+                            if (padre > 0) {
+                                dijkstra.setCosto(padre, dest, 0.0);
+                            }
+
                             dijkstra.setCosto(source, dest, topology.getCosto(source, dest));
+
                         }
                     }
                 }
@@ -153,10 +163,9 @@ public class Decisioner {
             int scelta = -1;
             for (Object d : nodes) {
                 int dest = (Integer) d;
-                if (scelta > 0) {
+                if (scelta >= 0) {
                     if (rigapesi[dest] < rigapesi[scelta]) {
                         scelta = dest;
-
                     }
                 } else {
                     scelta = dest;
@@ -164,8 +173,48 @@ public class Decisioner {
                 }
             }
 
-            nodes.remove(scelta);
+            for (int i = 0; i < nodes.size(); i++) {
+                if (nodes.get(i) == scelta) {
+                    nodes.remove(i);
+                    break;
+                }
+            }
             N.add(scelta);
+
+        }
+
+        nodes = topology.getNodesExceptSource(myId);
+
+        while (!nodes.isEmpty()) {
+            int dest = nodes.get(0);
+            int next_hop = -1;
+            double peso = 9999;
+            for (int i = 0; i < dijkstra.getN(); i++) {
+                if (dijkstra.getCosto(i, dest) > 0 && dijkstra.getCosto(i, dest) < peso) {
+                    next_hop = i;
+                    peso = dijkstra.getCosto(i, dest);
+                }
+            }
+            if (next_hop == -1) {
+                next_hop = dest;
+                peso = 0.0;
+            }
+
+            if (next_hop != myId) {
+                int padre = dijkstra.getPadre(next_hop);
+                peso += dijkstra.getCosto(padre, next_hop);
+                while (padre != myId) {
+                    next_hop = padre;
+                    padre = dijkstra.getPadre(next_hop);
+                    peso += dijkstra.getCosto(padre, next_hop);
+                }
+            }
+            else{
+                next_hop = dest;
+            }
+
+            nodes.remove(0);
+            tr.addEntry(dest, next_hop, peso);
         }
 
     }

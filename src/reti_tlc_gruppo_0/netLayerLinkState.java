@@ -21,12 +21,19 @@ public class netLayerLinkState extends NetworkLayer {
 
     final String HELLO_GREETINGS = "hello_pckt";
     final String HELLO_TIMEOUT_MSG = "hello_timeout";
+    private String LSA_MSG = "LSA";
+
     final int HELLO_TIMEOUT = 15000;
     int TTL_LSA = 1;
     int seq_no = 0;
-    private String LSA_MSG = "LSA";
-    
- 
+
+    final String UPDATE_RT_MSG = "update_routing_table";
+    final int UPDATE_ROUTING_TABLE_COLLECTING_TIME = 2000;
+    protected boolean tableIsChanged = false;
+
+    private boolean first_hellp_msg_received = true;
+
+    private LSDB myLinkStateDb;
 
     public int getTTL_LSA() {
         return TTL_LSA;
@@ -43,19 +50,16 @@ public class netLayerLinkState extends NetworkLayer {
     public void setHELLO_ENABLED(boolean HELLO_ENABLED) {
         this.HELLO_ENABLED = HELLO_ENABLED;
     }
-    boolean HELLO_ENABLED = false;
-
-    final String UPDATE_RT_MSG = "update_routing_table";
-    final int UPDATE_ROUTING_TABLE_COLLECTING_TIME = 2000;
-    protected boolean tableIsChanged = false;
+    boolean HELLO_ENABLED = true;
 
     public netLayerLinkState(scheduler s, double tempo_di_processamento, Grafo grafo) {
         super(s, tempo_di_processamento, grafo);
-        
-        if(HELLO_ENABLED){
-          initializeProtocol();
+
+        if (HELLO_ENABLED) {
+            initializeProtocol();
         }
 
+        myLinkStateDb = new LSDB();
     }
 
     private void generateCollectingMessage() {
@@ -94,20 +98,69 @@ public class netLayerLinkState extends NetworkLayer {
                 double new_peso = super.s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
 
                 boolean esito = super.myRoutingTable.setPeso(id_nodo_sorgente, id_nodo_sorgente, new_peso);
-                if(esito == true)
-                   tableIsChanged = true;
+                if (esito == true) {
+                    tableIsChanged = true;
+                }
 
             }
 
         } else if (m.getTipo_Messaggio().equals(UPDATE_RT_MSG)) {
-            System.out.println("D:"+s.orologio.getCurrent_Time()+" Il nodo "+((Nodo)nodo).getId()+" è pronto ad eseguire algoritmo per aggiornare le TR ");
+            System.out.println("D:" + s.orologio.getCurrent_Time() + " Il nodo " + ((Nodo) nodo).getId() + " è pronto ad eseguire algoritmo per aggiornare le TR ");
             if (tableIsChanged == true) {
                 //Update routing table executing routing algorithm
                 System.out.println("TR Aggiornata");
                 tableIsChanged = false;
+
+                System.out.println("D:" + ((Nodo) super.nodo).getId() + " Aggiorna TR");
+                boolean update_db = myLinkStateDb.getLSDB(super.myGrafo);
+
+                if (update_db == true) {
+                    System.out.println("\n\n\nPRIMA DI AGGIORNAMENTO ");
+                    super.myRoutingTable.printTR();
+                    super.decisioner.updateRoutingTable();
+                    System.out.println(" A SEGUITO DI AGGIORNAMENTO ");
+                    super.myRoutingTable.printTR();
+                    System.out.println("D:" + ((Nodo) super.nodo).getId() + " Aggiornata TR invio nuovo LSA");
+                    //devo generare un nuovo LSA e inviarlo ai miei vicini
+                    this.sendLSA();
+                }
             }
 
             generateCollectingMessage();
+
+        } else if (m.getTipo_Messaggio().equals(this.LSA_MSG)) {
+
+            System.out.println("D:" + s.orologio.getCurrent_Time() + " Il nodo " + ((Nodo) nodo).getId() + " Arrivato messaggio LSA ");
+            LSA_packet lsa = (LSA_packet) m.getData();
+
+            if (myLinkStateDb.checkLsaPresence(lsa.getSorgente(), lsa.seq_no) == false) {
+                //inserisco il la coppia sorgente - no_seq nel lsdb
+                myLinkStateDb.lsdb_add_packet(lsa.getSorgente(), lsa.seq_no, s.orologio.getCurrent_Time());
+                //inserisco il contenuto del messaggio nel LSDB
+                myLinkStateDb.collection.add(lsa.getGrafo());
+                //Avviso il collector che la tabella di routing può essere aggiornata se necessagio perchè
+                //Ho ricevuto un LSA contenente una topologia
+                tableIsChanged = true;
+
+                //Controlla TTL e nel caso invia sulle interfacce d'uscita
+                if (lsa.getTtl() > 1) {
+                    lsa.setTtl(lsa.getTtl() - 1);
+                    lsa.setRilancio(((Nodo) super.nodo).getId());
+                    Nodo myNodo = ((Nodo) super.nodo);
+                    ArrayList<Integer> nodes = super.myRoutingTable.getNeighbours();
+                    for (Object node_id : nodes) {
+                        Nodo n = myNodo.getInfo().getNodo((Integer) node_id);
+                        Messaggi m1 = new Messaggi(LSA_MSG, this, super.linkLayer, n, s.orologio.getCurrent_Time());
+                        m1.setNextHop_id((Integer) node_id);
+                        m1.shifta(this.tempo_di_processamento);
+                        m1.setData(lsa);
+                        m1.isData = false;
+                        m1.saliPilaProtocollare = false;
+
+                        s.insertMessage(m1);
+                    }
+                }
+            }
 
         } else {
             System.out.println("Messaggio non gestibile da Questo Net invio alla classe super");
@@ -126,7 +179,6 @@ public class netLayerLinkState extends NetworkLayer {
             m.setNextHop_id(node.getId());
             m.shifta(super.tempo_di_processamento);
             m.isData = false;
-
             s.insertMessage(m);
         }
 
@@ -136,6 +188,12 @@ public class netLayerLinkState extends NetworkLayer {
         m1.shifta(HELLO_TIMEOUT);
         m1.saliPilaProtocollare = false;
         s.insertMessage(m1);
+
+        //If first hello message send lsa as well
+        if (first_hellp_msg_received) {
+            sendLSA();
+            first_hellp_msg_received = false;
+        }
 
     }
 
@@ -151,7 +209,7 @@ public class netLayerLinkState extends NetworkLayer {
 
         generateHelloMessage();
         generateCollectingMessage();
-        sendLSA();
+
     }
 
     @Override
@@ -169,24 +227,23 @@ public class netLayerLinkState extends NetworkLayer {
 
     private void sendLSA() {
         seq_no++;
-        Nodo myNodo = ((Nodo)this.nodo);
-        LSA_packet lsa = new LSA_packet(seq_no,((Nodo)this.nodo).getId(),
+        Nodo myNodo = ((Nodo) super.nodo);
+        LSA_packet lsa = new LSA_packet(seq_no, myNodo.getId(),
                 myNodo.getId(),
                 this.TTL_LSA,
-                super.myRoutingTable);
-               
+                super.myGrafo);
+
 //Devo inviare il messaggio in flooding sui nodi adiacenti
-        ArrayList<Integer> nodes =  super.myRoutingTable.getNeighbours();
-        for(Object node_id : nodes)
-        {
-            Nodo n = myNodo.getInfo().getNodo((Integer)node_id);
-            Messaggi m = new Messaggi(LSA_MSG,this,super.linkLayer,n,s.orologio.getCurrent_Time());
-            m.setNextHop_id((Integer)node_id);
+        ArrayList<Integer> nodes = super.myRoutingTable.getNeighbours();
+        for (Object node_id : nodes) {
+            Nodo n = myNodo.getInfo().getNodo((Integer) node_id);
+            Messaggi m = new Messaggi(LSA_MSG, this, super.linkLayer, n, s.orologio.getCurrent_Time());
+            m.setNextHop_id((Integer) node_id);
             m.shifta(this.tempo_di_processamento);
             m.setData(lsa);
             m.isData = false;
             m.saliPilaProtocollare = false;
-            
+
             s.insertMessage(m);
         }
     }
