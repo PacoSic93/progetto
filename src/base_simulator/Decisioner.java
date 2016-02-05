@@ -150,10 +150,10 @@ public class Decisioner {
                             rigapesi[dest] = value;
                             int padre = dijkstra.getPadre(dest);
                             if (padre > 0) {
-                                dijkstra.setCosto(padre, dest, 0.0);
+                                dijkstra.setCosto(padre, dest, 0.0,0.0);
                             }
 
-                            dijkstra.setCosto(source, dest, topology.getCosto(source, dest));
+                            dijkstra.setCosto(source, dest, topology.getCosto(source, dest),0.0);
 
                         }
                     }
@@ -184,9 +184,11 @@ public class Decisioner {
         }
 
         nodes = topology.getNodesExceptSource(myId);
-
+System.out.println("D:Dijkstra:Preparo TR del nodo "+myId+" partendo dalla lista dei nodi ");
         while (!nodes.isEmpty()) {
+
             int dest = nodes.get(0);
+System.out.println("D:Dijkstra:Nodo sulla topologia: "+dest);            
             int next_hop = -1;
             double peso = 9999;
             for (int i = 0; i < dijkstra.getN(); i++) {
@@ -214,6 +216,7 @@ public class Decisioner {
             }
 
             nodes.remove(0);
+System.out.println("D:Dijkstra:Nodo sulla topologia: "+dest+" NEXT HOP: "+next_hop);               
             tr.addEntry(dest, next_hop, peso);
         }
 

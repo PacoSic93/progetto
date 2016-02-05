@@ -17,18 +17,25 @@ public class Grafo
     // Rappresenta la matrice delle adiacenze in particolare utilizzando un valore diverso da 0
     //      
     ArrayList<ArrayList<Double>> rami;
+    ArrayList<ArrayList<Double>> age;
 
     public Grafo(int n) {
         this.n = n;
+        
         rami = new ArrayList<ArrayList<Double>>();
+        age  = new ArrayList<ArrayList<Double>>();
+        
         for(int i = 0;i<n;i++)
         {
             ArrayList<Double> riga = new ArrayList<Double>();
+            ArrayList<Double> age_row = new ArrayList<Double>();
             for(int j=0;j<n;j++)
             {
                 riga.add(0.0);
+                age_row.add(0.0);
             }
             rami.add(riga);
+            age.add(age_row);
         }
     }
 
@@ -39,15 +46,21 @@ public class Grafo
     public void setN(int n) {
         this.n = n;
         rami.clear();
+        age.clear();
         rami = new ArrayList<ArrayList<Double>>();
+        age  = new ArrayList<ArrayList<Double>>();
+        
         for(int i = 0;i<n;i++)
         {
             ArrayList<Double> riga = new ArrayList<Double>();
+            ArrayList<Double> age_row = new ArrayList<Double>();
             for(int j=0;j<n;j++)
             {
                 riga.add(0.0);
+                age_row.add(0.0);
             }
             rami.add(riga);
+            age.add(age_row);
         }
     }
 
@@ -78,8 +91,15 @@ public class Grafo
        return costo;
     }
 
-    public void setCosto(int source, int dest,double costo) {
-        rami.get(source).set(dest, costo);
+    public boolean setCosto(int source, int dest,double costo, double time) {
+        if(time > age.get(source).get(dest) || 
+          (rami.get(source).get(dest) == 0))
+        {
+           rami.get(source).set(dest, costo);
+           age.get(source).set(dest, time);
+           return true;
+        }
+        return false;
     }
 
     int getPadre(int next_hop) {
@@ -91,6 +111,10 @@ public class Grafo
             }
         }
         return -1;
+    }
+
+    public double getAged(int i, int j) {
+        return age.get(i).get(j);
     }
     
     

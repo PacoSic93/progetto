@@ -76,7 +76,7 @@ public class LSA_packet {
         {
             for(int j = 0; j<g.getN();j++)
             {
-                topology.setCosto(i, j, g.getCosto(i, j));
+                topology.setCosto(i, j, g.getCosto(i, j),g.getAged(i, j));
             }
         }
     }

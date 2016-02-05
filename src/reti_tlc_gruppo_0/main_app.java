@@ -378,8 +378,8 @@ public class main_app extends javax.swing.JFrame {
   */
                         nl.addRoutingTableEntry(dest,dest,metrica);
                         
-                        grafo.setCosto(nh.getId(), dest, metrica);
-                        grafo.setCosto(dest,nh.getId(), metrica);
+                        grafo.setCosto(nh.getId(), dest, metrica,0.0);
+                        grafo.setCosto(dest,nh.getId(), metrica,0.0);
                     }
                 }
                 
@@ -496,27 +496,11 @@ public class main_app extends javax.swing.JFrame {
                         nl.addRoutingTableEntry(dest,dest,metrica);
                         
 //Popolazione iniziale topologia                        
-                        grafo.setCosto(nr.getId(), dest, metrica);
-                        grafo.setCosto(dest,nr.getId(), metrica);
+                        grafo.setCosto(nr.getId(), dest, metrica,0.0);
+                        grafo.setCosto(dest,nr.getId(), metrica,0.0);
                         
                     }
                 }
-//                
-//                //TODO:Da fare inserimento statico delle entry nelle tabelle di routing, sulle interfacce dei vicini
-//                
-//
-//                listElement1 = ((Element) routers_list).getChildren("vicini");
-//                for (Object vicini_list : listElement1) {
-//                    List listElement2 = ((Element) vicini_list).getChildren("nodo");
-//                    for (Object nodo_elements : listElement2) {
-//                        Element item = (Element) nodo_elements;
-//                        int n_id = Integer.valueOf(item.getAttributeValue("id"));
-//                        int if_id = Integer.valueOf(item.getAttributeValue("interface"));
-//
-//                        nr.addNeighbour(n_id, if_id);
-//
-//                    }
-//                }
 
                 info.addNodo(nr);
                 

@@ -68,9 +68,8 @@ public class LSDB {
             Grafo topologia = (Grafo) obj;
             for (int i = 0; i < topologia.getN(); i++) {
                 for (int j = 0; j < topologia.getN(); j++) {
-                    if (g.getCosto(i, j) != topologia.getCosto(i, j)) {
-                        res = true;
-                        g.setCosto(i, j, topologia.getCosto(i, j));
+                    if (topologia.getCosto(j, j)>=0.0){
+                        res = g.setCosto(i, j, topologia.getCosto(i, j),topologia.getAged(i,j));
                     }
                 }
             }

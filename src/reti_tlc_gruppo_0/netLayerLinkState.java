@@ -88,24 +88,44 @@ public class netLayerLinkState extends NetworkLayer {
             System.out.println("D:" + ((Nodo) super.nodo).getTipo() + ": T:" + s.orologio.getCurrent_Time() + ": Arrivato messagio di generazione HELLO");
             sendHelloGreetingMessage();
         } else if (m.getTipo_Messaggio().equals(this.HELLO_GREETINGS)) {
-            System.out.println("D:" + ((Nodo) super.nodo).getTipo() + ": ID :" + ((Nodo) super.nodo).getId() + " T:" + s.orologio.getCurrent_Time() + ":Arrivato messaggio di HELLO");
-
+            System.out.println("\nD:" + ((Nodo) super.nodo).getTipo() + ": ID :" + ((Nodo) super.nodo).getId() + " T:" + s.orologio.getCurrent_Time() + ":Arrivato messaggio di HELLO");
+System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing pre-greetings");
             super.myRoutingTable.printTR();
+            
             int id_nodo_sorgente = ((Nodo) m.getNodoSorgente()).getId();
-
+            int myId = ((Nodo)super.nodo).getId();
             if (super.myRoutingTable.controllaPresenzaLinea(id_nodo_sorgente, id_nodo_sorgente) >= 0) {
                 //Vuol dire che la linea è gia presente, dobbiamo aggiornare il peso
                 double new_peso = super.s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
-
                 boolean esito = super.myRoutingTable.setPeso(id_nodo_sorgente, id_nodo_sorgente, new_peso);
+                
+                super.myGrafo.setCosto( myId ,id_nodo_sorgente, new_peso,m.getTempo_di_partenza());
+                
                 if (esito == true) {
+                    //Setto questa variabile a true perchè indica al livello rete che la tabella è cambiata
                     tableIsChanged = true;
                 }
+              
+                //LSA sarà inviato dal nodo se la topologia sarà cambiata a valle dello scattere del collecting TIMEOUT
+                
 
             }
+            else
+            {
+                //Il vicino non è presente nel grafo dobbiamo aggiungerlo
+                double new_peso = super.s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
+                super.myRoutingTable.addEntry(id_nodo_sorgente, id_nodo_sorgente, new_peso);
+                super.myGrafo.setCosto(myId, id_nodo_sorgente, new_peso,m.getTempo_di_partenza());
+                tableIsChanged = true;
+            }
+            
+            System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing post-greetings");
+            super.myRoutingTable.printTR();
+System.out.println("\nD:"+s.orologio.getCurrent_Time()+" FINE GESTIONE GREETINGS");              
 
         } else if (m.getTipo_Messaggio().equals(UPDATE_RT_MSG)) {
             System.out.println("D:" + s.orologio.getCurrent_Time() + " Il nodo " + ((Nodo) nodo).getId() + " è pronto ad eseguire algoritmo per aggiornare le TR ");
+            //Settata a true da un LSA ovvero da un helloGreetings che ha portato modifiche al costo
             if (tableIsChanged == true) {
                 //Update routing table executing routing algorithm
                 System.out.println("TR Aggiornata");
@@ -134,6 +154,7 @@ public class netLayerLinkState extends NetworkLayer {
             LSA_packet lsa = (LSA_packet) m.getData();
 
             if (myLinkStateDb.checkLsaPresence(lsa.getSorgente(), lsa.seq_no) == false) {
+                System.out.println("D:Nuovo LSA: Aggiungo a collection ");
                 //inserisco il la coppia sorgente - no_seq nel lsdb
                 myLinkStateDb.lsdb_add_packet(lsa.getSorgente(), lsa.seq_no, s.orologio.getCurrent_Time());
                 //inserisco il contenuto del messaggio nel LSDB
@@ -228,14 +249,16 @@ public class netLayerLinkState extends NetworkLayer {
     private void sendLSA() {
         seq_no++;
         Nodo myNodo = ((Nodo) super.nodo);
-        LSA_packet lsa = new LSA_packet(seq_no, myNodo.getId(),
-                myNodo.getId(),
-                this.TTL_LSA,
-                super.myGrafo);
+        
 
 //Devo inviare il messaggio in flooding sui nodi adiacenti
         ArrayList<Integer> nodes = super.myRoutingTable.getNeighbours();
         for (Object node_id : nodes) {
+            LSA_packet lsa = new LSA_packet(seq_no, myNodo.getId(),
+                myNodo.getId(),
+                this.TTL_LSA,
+                super.myGrafo);
+            
             Nodo n = myNodo.getInfo().getNodo((Integer) node_id);
             Messaggi m = new Messaggi(LSA_MSG, this, super.linkLayer, n, s.orologio.getCurrent_Time());
             m.setNextHop_id((Integer) node_id);

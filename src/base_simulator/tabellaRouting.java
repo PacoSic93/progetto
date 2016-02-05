@@ -109,7 +109,7 @@ public class tabellaRouting
             RoutingRow obj = (RoutingRow) entry;
             System.out.println("|"+obj.getNodoDestinazione()+"|"+obj.getNextHop()+"|"+obj.getCosto()+"|");
         }
-        System.out.println("\n********************FINE STAMPA TR*******************");
+        System.out.println("********************FINE STAMPA TR*******************");
     }
 
     /**
