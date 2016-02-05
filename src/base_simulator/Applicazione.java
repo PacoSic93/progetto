@@ -10,6 +10,8 @@ package base_simulator;
  * @author afsantamaria
  */
 public class Applicazione {
+    
+    public final String SIMPLE_APP_TCP = "simple_source_tcp";
      double rate;
      int TON; 
      int TOFF;

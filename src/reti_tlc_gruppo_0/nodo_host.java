@@ -163,6 +163,20 @@ public class nodo_host extends Nodo {
                 tempo = tempo + packet_inter_delay; //tempo di lancio del prossimo paccketto in ms
                 s.insertMessage(m);
             }
+            
+            //TODO DA GESTIRE LA CLOSE CONNECTION 
+            //1. creare un messaggio specifico di close connection
+            Messaggi m = new Messaggi("close connection", this, this.myTransportLayer, dest, tempo);
+                current_seq_no++;
+                m.ID = current_seq_no;
+                m.isData = true;
+                m.setNodoSorgente(this);
+                m.setApplication_port(app.getPort());
+                m.setSize(app.getPacket_size());
+                m.saliPilaProtocollare = false; //Il messaggio deve partire dal livello traporto e scendere nella pila
+                
+                s.insertMessage(m);
+                
             msg_info = "FINE GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Generati:"+numero_pckt;        
             super.stampaInformazione("I", super.getId(), msg_info);
 

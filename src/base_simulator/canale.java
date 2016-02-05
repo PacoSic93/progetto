@@ -144,7 +144,7 @@ public class canale extends Entita{
     
     
     public void Handler(Messaggi m){
-        System.out.println("Il messaggio è giunto nel canale");
+        System.out.println("Il messaggio è arrivato nel canale");
         gestisciData(m);
     }
     

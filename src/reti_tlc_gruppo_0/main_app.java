@@ -398,8 +398,14 @@ public class main_app extends javax.swing.JFrame {
                     int start = Integer.valueOf(app_item.getAttributeValue("start"));
                     double pckt_size = Double.valueOf(app_item.getAttributeValue("pckt_size"));
                     
-                    Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,pckt_size,tipo,start);                    
-                    nh.addApplicazione(app);
+                    Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,pckt_size,tipo,start); 
+                    if(app.getTipo().equals(app.SIMPLE_APP_TCP))
+                    {
+                        //1. Aggiungo applicazione solo se sorgente abilitando la porta
+                        //2. Sulla destinazione sarà aperta la porta solo su esplicita richiesta da parte di una sorgente
+                        nh.addApplicazione(app);
+                    }
+                    
                             
                 }
                 
