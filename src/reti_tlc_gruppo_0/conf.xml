@@ -13,8 +13,14 @@ and open the template in the editor.
     <canale id="0" tipo="WIRED" capacita="5000000" dim_pacchetto = "1526" tempo_propagazione = "10"></canale> 
     <canale id="1" tipo="WIRED" capacita="10000000" dim_pacchetto = "1526" tempo_propagazione = "5"></canale>
     <canale id="2" tipo="WIRED" capacita="5000000" dim_pacchetto = "1526" tempo_propagazione = "10"></canale>
+    <canale id="3" tipo="WIRED" capacita="5000000" dim_pacchetto = "1526" tempo_propagazione = "5"></canale>
+    <canale id="4" tipo="WIRED" capacita="5000000" dim_pacchetto = "1526" tempo_propagazione = "1"></canale>
 </canali>
-    <nodo_host id="0" gateway="2" net_size="4">
+<!--
+   CONFIGURAZIONE RETE
+   H(0) - <O> - R(2) - <1> - R(4) - <3> R(3) - <2> H(2)
+-->
+    <nodo_host id="0" gateway="2" net_size="5">
 
         <!--
         type : Specializzazione applicazione
@@ -33,12 +39,12 @@ and open the template in the editor.
         </application>
         
         <interfaces>
-            <interface id="0" IP="192.168.1.2/24" dest="2" canale="0" metrica="1.0"></interface>
+            <interface id="0" IP="192.168.1.2/26" dest="2" canale="0" metrica="1.0"></interface>
         </interfaces>
         
     </nodo_host>
     
-    <nodo_host id="1" gateway="3" net_size="4">
+    <nodo_host id="1" gateway="3" net_size="5">
         <!--
         TODO: Questo campo non è necessario per una destinazione da eliminare
         -->
@@ -46,33 +52,36 @@ and open the template in the editor.
         </application>
         
         <interfaces>
-            <interface id="0" IP="192.168.1.2/24" dest="3" canale="2" metrica="1.0"></interface>
+            <interface id="0" IP="192.168.1.66/26" dest="3" canale="2" metrica="1.0"></interface>
         </interfaces>
     </nodo_host>
     
-    <router id="2" gateway="3" net_size="4">
+    <router id="2" gateway="4" net_size="5">
         <protocol tipo="OSPF" TTL="1" ROUTING="auto"></protocol>
              
         <interfaces>
-            <interface id="0" IP="192.168.2.1/30" dest="3" canale="1" metrica="1.0"></interface>
-            <interface id="1" IP="192.168.1.1/24" dest="0" canale="0" metrica="1.0"></interface>
+            <interface id="0" IP="192.168.2.1/30" dest="4" canale="1" metrica="1.0"></interface>
+            <interface id="1" IP="192.168.1.1/26" dest="0" canale="0" metrica="1.0"></interface>
+            <interface id="2" IP="192.168.2.9/30" dest="3" canale="4" metrica="1.0"></interface>
         </interfaces>
-<!--        <vicini>
-            <nodo id="1" interface="1"></nodo>
-            <nodo id="4" interface="0"></nodo>
-        </vicini>-->
     </router>
-    
-    <router id="3" gateway="2" net_size="4">
+           
+    <router id="3" gateway="4" net_size="5">
         <protocol tipo="OSPF" TTL="1" ROUTING="auto"></protocol>
         <interfaces>
-            <interface id="0" IP="192.168.2.2/30" dest="2" canale="1" metrica="1.0"></interface>
-            <interface id="1" IP="192.168.1.1/24" dest="1" canale="2" metrica="1.0"></interface>
+            <interface id="0" IP="192.168.2.5/30" dest="4" canale="3" metrica="1.0"></interface>
+            <interface id="1" IP="192.168.1.65/26" dest="1" canale="2" metrica="1.0"></interface>
+            <interface id="2" IP="192.168.2.10/30" dest="3" canale="4" metrica="1.0"></interface>
         </interfaces>
-<!--        <vicini>
-            <nodo id="2" interface="1"></nodo>
-            <nodo id="3" interface="0"></nodo>
-        </vicini>-->
+    </router>
+    
+    <router id="4" gateway="3" net_size="5">
+        <protocol tipo="OSPF" TTL="1" ROUTING="auto"></protocol>
+             
+        <interfaces>
+            <interface id="0" IP="192.168.2.2/30" dest="2" canale="1" metrica="1.0"></interface>
+            <interface id="1" IP="192.168.2.6/30" dest="3" canale="3" metrica="1.0"></interface>
+        </interfaces>
     </router>
     
     <network>

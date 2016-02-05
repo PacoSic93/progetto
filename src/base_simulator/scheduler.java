@@ -43,6 +43,12 @@ public class scheduler implements Runnable{
         
     private Date d;
     
+    private Infos info;
+
+    public void setInfo(Infos info) {
+        this.info = info;
+    }
+    
     
     
     
@@ -131,6 +137,10 @@ public class scheduler implements Runnable{
             }
             
         }
+        
+        //Simulazione terminata stampiamo le statistiche dei nodi interessati
+        info.stampaStatisticheNodo();
+        
         
         //Solo aggiornamento interfaccia grafica
         while(buffer.isEmpty() && orologio.getCurrent_Time()<=max_Time){

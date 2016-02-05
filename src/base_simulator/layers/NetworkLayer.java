@@ -118,7 +118,7 @@ public class NetworkLayer extends Entita{
         {
             //Aggiorna Statistiche
             this.nr_pkt_dati++;
-            this.delay_medio_pkt_dati +=Float.parseFloat(""+(s.orologio.getCurrent_Time()-m.getTempo_di_partenza()));
+            this.delay_medio_pkt_dati +=(s.orologio.getCurrent_Time()-m.getTempo_di_partenza());
             this.jitter_medio +=s.orologio.getCurrent_Time()-arrivo_pkt_prec;
             this.arrivo_pkt_prec = s.orologio.getCurrent_Time();
             if(((Nodo)this.nodo).getTipo().contains("host"))
@@ -126,7 +126,7 @@ public class NetworkLayer extends Entita{
                //TODO : Invia il pacchetto al livello superiore se non sono router
                 if(((Nodo)m.getNodoDestinazione()).getId() == ((Nodo)this.nodo).getId())
                 {
-                    System.out.println("********Messaggio giunto a destinazione*******");
+                    System.out.println("********Messaggio ARRIVATO a destinazione*******");
                 }
             }
             else
@@ -171,7 +171,8 @@ public class NetworkLayer extends Entita{
     	//TODO : Da aggiornare le statistiche del nodo
     	
         String s ="\n--->Statistiche network Layer";
-
+        s+="\nTipo Nodo "+((Nodo)nodo).getTipo();
+        s+="\nId del Nodo "+((Nodo)nodo).getId();
         s+="\nNumero di richieste accettate (Nr):"+this.nr_richieste_accettate;
         s+="\nNumero di richieste rifiutate (Nr):"+this.nr_richieste_rifiutate;
         s+="\nNumero di terminali attivati (Nr):"+this.terminali_attivati;

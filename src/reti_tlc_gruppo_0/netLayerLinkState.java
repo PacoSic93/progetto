@@ -84,6 +84,11 @@ public class netLayerLinkState extends NetworkLayer {
      */
     @Override
     public void gestisciPacchettoProtocollo(Messaggi m) {
+        //Inserire qui i dati per statistiche
+        super.nr_pkt_prt++;
+        super.delay_medio_pkt_prt += s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
+        
+        
         if (m.getTipo_Messaggio().equals(HELLO_TIMEOUT_MSG)) {
             System.out.println("D:" + ((Nodo) super.nodo).getTipo() + ": T:" + s.orologio.getCurrent_Time() + ": Arrivato messagio di generazione HELLO");
             sendHelloGreetingMessage();

@@ -5,6 +5,7 @@
  */
 package base_simulator;
 
+import base_simulator.layers.NetworkLayer;
 import java.util.ArrayList;
 
 /**
@@ -80,6 +81,23 @@ public class Infos {
         }
         return res;
     }
+
+    /**
+     * Stampa statistiche nodo Host
+     */
+    void stampaStatisticheNodo() {
+        for(Object obj : this.nodes)
+        {
+            Nodo n = (Nodo)obj;
+            System.out.println("=====STAMPA STATISTICHE NODO NETWORK LAYER====");
+            NetworkLayer nl = n.myNetLayer;
+            String s = nl.getStat();
+            System.out.println(s);
+            System.out.println("=====FINE====");
+        }
+    }
+
+    
 
     
     

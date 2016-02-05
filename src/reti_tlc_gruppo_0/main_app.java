@@ -533,6 +533,8 @@ public class main_app extends javax.swing.JFrame {
                     }
                 }
             }
+            
+            s.setInfo(info);
 
         } catch (IOException io) {
             System.out.println(io.getMessage());
