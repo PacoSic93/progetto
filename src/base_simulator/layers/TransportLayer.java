@@ -17,7 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Questa classe permette di memorizzare i dati che arrivano o devono andare al 
+ * livello applicazione. In particolare, è molto utile nella ricostruzione dei frammenti
  * @author afsantamaria
  */
 class Applicazione {
@@ -41,6 +42,13 @@ class Applicazione {
         return message;
     }
 
+    /**
+     * Metodo per la ricostruzione dei frammenti della sessione applicazione
+     * i dati arrivano attraverso la rete e poi vengono ricostruiti da questo metodo
+     * 
+     * @param message - byte array contenente frammenti dell'informazione da utilizzare
+     * a livello applicazione
+     */
     public void setMessage(byte message[]) {
         
         int new_size = this.message.length + message.length;        
@@ -65,6 +73,14 @@ class Applicazione {
 
 }
 
+/**
+ * Livello Trasporto : Tutti i dati sono trasferiti utilizzando connessioni non sicure
+ * non è implementato in questa classe il controllo di congestione e di flusso del TCP
+ * 
+ * I dati sono inviati utilizzando delle connessioni UDP-Like.
+ * 
+ * @author afsantamaria
+ */
 public class TransportLayer extends Entita {
 
     protected NetworkLayer networkLayer;

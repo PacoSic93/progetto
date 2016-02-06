@@ -10,7 +10,7 @@
 package base_simulator;
 import java.util.*;
 /**
- *
+ *Classe per il tracing delle attività sugli oggetti
  * @author franco
  */
 public class trace {

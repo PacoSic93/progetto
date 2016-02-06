@@ -7,6 +7,11 @@ and open the template in the editor.
 
 
 <root>
+    <project>
+        <descrizione>
+            Progetto sample per il simulatore jNET by culture group of University of Calabria
+        </descrizione>
+    </project>
 <canali>    
     <!-- Capacità in bit dimensione pacchetto in byte -->
     
@@ -25,13 +30,16 @@ and open the template in the editor.
         <!--
         type : Specializzazione applicazione
         rate : parametro ingresso applicazione
-        TON : periodo di ON in caso di burst
-        TOFF: periodo di off in caso di burstness
+        TON : periodo di ON in caso di burst (Non ancora utilizato)
+        TOFF: periodo di off in caso di burstness  (Non ancora utilizato)
         port: Porta Applicazione livello trasporto
         size: Dimensione dei dati da trasferire in MegaByte
         pckt_size : dimensione del pacchetto a livello trasporto
         start : inizio applicazione in ms
         dest: destinazione del flusso da dare id di un nodo host
+        file : Se indicato e il simulatore identifica il file diventa il dato da trasferire 
+               Il campo size non sarà più utilizzato dal simulatore ma sarà sostituito con il valore reale del file
+        payload : non ancora utilizzato
         -->
 
         <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="1" size="0.001500" pckt_size="1460.0" start="30000" 
