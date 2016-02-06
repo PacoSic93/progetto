@@ -49,7 +49,7 @@ class Applicazione {
         System.arraycopy(this.message, 0, appo, 0, this.message.length);
         
         this.message = new byte[new_size];        
-        System.arraycopy(this.message, 0, appo, 0, appo.length);
+        System.arraycopy(appo, 0, this.message, 0, appo.length);
         
         System.arraycopy(message, 0, this.message, appo.length, message.length);
 
@@ -246,6 +246,7 @@ public class TransportLayer extends Entita {
                             OutFile = new FileOutputStream(
                                     "test.txt");
                             OutFile.write(a.getMessage());
+                            OutFile.flush();
                             OutFile.close();
                             break;
                         } catch (FileNotFoundException ex) {

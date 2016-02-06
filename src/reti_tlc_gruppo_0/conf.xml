@@ -35,7 +35,7 @@ and open the template in the editor.
         -->
 
         <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="1" size="0.001500" pckt_size="1460.0" start="30000" 
-            payload="Trasferimento file" file="simulatore_PA.jar"
+            payload="Trasferimento file" file="src/reti_tlc_gruppo_0/conf.xml"
         >
             
         </application>
