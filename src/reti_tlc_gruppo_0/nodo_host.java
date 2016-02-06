@@ -18,7 +18,12 @@ import base_simulator.layers.TransportLayer;
 import base_simulator.layers.physicalLayer;
 import base_simulator.scheduler;
 import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -89,6 +94,10 @@ public class nodo_host extends Nodo {
         System.out.println("I : "+this.getTipo()+" con ID "+((Nodo)this).getId()+" con IP :"+i.getIpv4()+" Invia su canale "+i.getChannel_idx());
     }
 
+    /**
+     * Invia il messaggio a livello fisico
+     * @param m 
+     */
     private void inviaMessaggioAPhyLayer(Messaggi m) {
         m.shifta(0);
         m.setSorgente(this);
@@ -144,7 +153,33 @@ public class nodo_host extends Nodo {
         int numero_pckt = (int) Math.ceil(file_size / pckt_size); // Ritorna Intero superiore
         double rate = app.getRate() * 1000; //Il rate solitamente è fornito in Kbit/sec
         int packet_inter_delay = (int)((pckt_size/rate) * 1000); //riporto interdelay in ms
-        StringTokenizer st = new StringTokenizer("Ciao;da;Franco",";");
+        String payload = app.getPayload();
+        
+        File file = new File(app.getFile());
+        byte fileData[] = null;
+        if(file.exists())
+        {
+            try {
+                FileInputStream inStreamFile = new FileInputStream(file);
+                
+                fileData = new byte[(int) file.length()];
+                file_size = ((double) file.length())*8.0;
+                numero_pckt = (int) Math.ceil(file_size / pckt_size); // Ritorna Intero superiore
+                
+                inStreamFile.read(fileData);
+                
+                inStreamFile.close();
+                
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(nodo_host.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(nodo_host.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+       
+        
+        
         if (app.getTipo().toLowerCase().contains("source")) {
             //TODO : CONTROLLARE TIPO TRASPORTO SE TCP INIZIALIZZARE LA TRASMISSIONE CON PROTOCOLLO TCP
             String msg_info = "INIZIO GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Da Generare:"+numero_pckt;        
@@ -161,13 +196,26 @@ public class nodo_host extends Nodo {
                 m.setNodoSorgente(this);
                 m.setApplication_port(app.getPort());
                 m.setSize(app.getPacket_size());
-                m.setData(st.nextToken());
+                m.setData(null);
+                if(fileData != null)
+                {
+                    int finalOffset = (int) ((i+1)*app.getPacket_size());
+                    if(finalOffset > (file_size/8))
+                        finalOffset = (int) (((file_size/8)) - (i*app.getPacket_size()));  
+                    else
+                        finalOffset = (int)app.getPacket_size();
+                    
+                    byte appo[] = new byte[finalOffset];
+                    System.arraycopy(fileData, (int) ((i)*app.getPacket_size()), appo, 0, finalOffset);                    
+                    m.setData(appo);
+                }
+
                 m.saliPilaProtocollare = false; //Il messaggio deve partire dal livello traporto e scendere nella pila
                 tempo = tempo + packet_inter_delay; //tempo di lancio del prossimo paccketto in ms
                 s.insertMessage(m);
             }
             
-            //TODO DA GESTIRE LA CLOSE CONNECTION 
+
             //1. creare un messaggio specifico di close connection
             Messaggi m = new Messaggi("close connection", this, this.myTransportLayer, dest, tempo+5000);
                 current_seq_no++;

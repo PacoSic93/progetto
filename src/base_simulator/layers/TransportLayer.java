@@ -9,7 +9,12 @@ import base_simulator.Entita;
 import base_simulator.Messaggi;
 import base_simulator.Nodo;
 import base_simulator.scheduler;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,7 +23,7 @@ import java.util.ArrayList;
 class Applicazione {
 
     int port = 0;
-    String message = "";
+    byte message[] = new byte[0];
     int status = -1;
 
     public Applicazione() {
@@ -32,12 +37,22 @@ class Applicazione {
         this.port = port;
     }
 
-    public String getMessage() {
+    public byte[] getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message += message;
+    public void setMessage(byte message[]) {
+        
+        int new_size = this.message.length + message.length;        
+        
+        byte appo[] = new byte[this.message.length];
+        System.arraycopy(this.message, 0, appo, 0, this.message.length);
+        
+        this.message = new byte[new_size];        
+        System.arraycopy(this.message, 0, appo, 0, appo.length);
+        
+        System.arraycopy(message, 0, this.message, appo.length, message.length);
+
     }
 
     int getStatus() {
@@ -119,7 +134,7 @@ public class TransportLayer extends Entita {
                         buffer.add(m);
                         Messaggi m1 = new Messaggi(this.SVUOTA_CODA, this, this, nodo, s.orologio.getCurrent_Time());
                         s.insertMessage(m1);
-                        
+
                     } else if (sessionActive(m) == WAITING) {
                         //TODO : devo cambiare il metodo mettendo pacchetto nel buffer e generando un metodo svuota buffer
 
@@ -147,20 +162,19 @@ public class TransportLayer extends Entita {
 //Gestione tipo UDP ; Per la gestione TCP implementare meccanismo di Congestion Avoidance            
             wating_for_send_messages = false;
             double tempo = 0;
-            for(Object obj : buffer)
-            {
-                Messaggi m1 = (Messaggi)obj;
+            for (Object obj : buffer) {
+                Messaggi m1 = (Messaggi) obj;
                 try {
-                            //Da inviare pacchetto al networkLayer
-                            m1.addHeader(this.header_size);
-                            m1.setNodoSorgente(nodo);
-                            m1.setSorgente(this);
-                            m1.setDestinazione(this.networkLayer);
-                            m1.shifta(tempo_di_processamento);
-                            s.insertMessage(m1);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                    //Da inviare pacchetto al networkLayer
+                    m1.addHeader(this.header_size);
+                    m1.setNodoSorgente(nodo);
+                    m1.setSorgente(this);
+                    m1.setDestinazione(this.networkLayer);
+                    m1.shifta(tempo_di_processamento);
+                    s.insertMessage(m1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 buffer.remove(obj);
             }
 
@@ -202,7 +216,7 @@ public class TransportLayer extends Entita {
         } else if (m.getTipo_Messaggio().toLowerCase().equals(UDP)) {
 
         } else if (m.getTipo_Messaggio().toLowerCase().equals(this.CLOSE_CONNECTION)) {
-            //TODO: DA INVIARE MESSAGGIO DI CHIUSURA CONNESSIONE
+
             //ripulire la connessione sul nodo liberando risorse porta e app
             if (m.saliPilaProtocollare == false) {
                 if (sessionActive(m) == ACCEPTED) {
@@ -226,8 +240,25 @@ public class TransportLayer extends Entita {
                 for (Object obj : apps) {
                     a = (Applicazione) obj;
                     if (a.getPort() == m.getApplication_port()) {
-                        System.out.println("Msg:" + a.getMessage());
-                        break;
+                        FileOutputStream OutFile = null;
+                        try {
+//Scrivo i byte su un file di uscita
+                            OutFile = new FileOutputStream(
+                                    "test.txt");
+                            OutFile.write(a.getMessage());
+                            OutFile.close();
+                            break;
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(TransportLayer.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            Logger.getLogger(TransportLayer.class.getName()).log(Level.SEVERE, null, ex);
+                        } finally {
+                            try {
+                                OutFile.close();
+                            } catch (IOException ex) {
+                                Logger.getLogger(TransportLayer.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
                     }
                 }
                 if (a != null) {
@@ -292,9 +323,11 @@ public class TransportLayer extends Entita {
     }
 
     private void storePayload(Messaggi m) {
-        for (Object obj : apps) {
-            if (((Applicazione) obj).getPort() == m.getApplication_port()) {
-                ((Applicazione) obj).setMessage((String) m.getData());
+        if (m.getData() != null) {
+            for (Object obj : apps) {
+                if (((Applicazione) obj).getPort() == m.getApplication_port()) {
+                    ((Applicazione) obj).setMessage((byte[]) m.getData());
+                }
             }
         }
     }

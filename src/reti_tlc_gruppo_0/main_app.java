@@ -397,8 +397,9 @@ public class main_app extends javax.swing.JFrame {
                     double size = Double.valueOf(app_item.getAttributeValue("size"));
                     int start = Integer.valueOf(app_item.getAttributeValue("start"));
                     double pckt_size = Double.valueOf(app_item.getAttributeValue("pckt_size"));
-                    
-                    Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,pckt_size,tipo,start); 
+                    String payload = app_item.getAttributeValue("payload");
+                    String filePath = app_item.getAttributeValue("file");
+                    Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,pckt_size,tipo,start,payload,filePath); 
                     if(app.getTipo().equals(app.SIMPLE_APP_TCP))
                     {
                         //1. Aggiungo applicazione solo se sorgente abilitando la porta

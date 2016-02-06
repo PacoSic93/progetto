@@ -21,6 +21,24 @@ public class Applicazione {
      String tipo;
      int start;
      double packet_size;
+     String payload;
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+     String file;
+
+    public String getPayload() {
+        return payload;
+    }
+
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
 
     public double getRate() {
         return rate;
@@ -86,7 +104,7 @@ public class Applicazione {
         this.start = start;
     }
 
-    public Applicazione(double rate, int TON, int TOFF, int port, int dest, double size,double pckt_size, String tipo, int start) {
+    public Applicazione(double rate, int TON, int TOFF, int port, int dest, double size,double pckt_size, String tipo, int start,String payload,String file) {
         this.rate = rate;
         this.TON = TON;
         this.TOFF = TOFF;
@@ -96,6 +114,8 @@ public class Applicazione {
         this.tipo = tipo;
         this.start = start;
         this.packet_size = pckt_size;
+        this.payload = payload;
+        this.file = file;
     }
 
     public double getPacket_size() {
