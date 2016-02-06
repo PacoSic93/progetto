@@ -44,9 +44,9 @@ public class LSDB {
 
     /**
      * Creo un entry per lsdb che utilizzo per effettuare il controllo sui LSA packet entranti
-     * @param source
-     * @param seq_no
-     * @param age 
+     * @param source Nodo che ha generato il pacchetto LSA
+     * @param seq_no Numero di sequenza sul nodo sorgente del pacchetto LSA
+     * @param age Eta del pacchetto
      */
     public void lsdb_add_packet(int source, int seq_no, double age) {
         LSA_STORY lsdb_entry = new LSA_STORY(source, seq_no, age);
@@ -57,7 +57,7 @@ public class LSDB {
     /**
      * Metodo che mi permette di effettuare la join tra il LSDB e il grafo
      *
-     * @param g
+     * @param g Topologia del nodo che chiama il metodo
      * @return false se non ci sono modifiche al grafo true altrimenti
      * 
      * TODO:QUA VA FATTO AGGIORNAMENTO SOLO SU BASE TEMPORALE AGE DEI LINK

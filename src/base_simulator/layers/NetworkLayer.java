@@ -52,11 +52,21 @@ public class NetworkLayer extends Entita {
 
     private int terminali_disconnessi = 0;
     private int terminali_attivati = 0;
+    
+    protected double PDU_SIZE = 1480; //Dimensione in byte della PDU
+
+    public double getPDU_SIZE() {
+        return PDU_SIZE;
+    }
+
+    public void setPDU_SIZE(double PDU_SIZE) {
+        this.PDU_SIZE = PDU_SIZE;
+    }
 
     /**
      * Creates a new instance of TransportLayer
      *
-     * @param s
+     * @param s Scheduler del simulatore
      * @param tempo_di_processamento
      * @param grafo
      */
@@ -85,9 +95,9 @@ public class NetworkLayer extends Entita {
     /**
      * Utilizzo questo metodo per connettere la pila protocollar
      *
-     * @param transportLayer
-     * @param linkLayer
-     * @param nodo
+     * @param transportLayer Livello Trasporto
+     * @param linkLayer Livello LinkLayer
+     * @param nodo Nodo di appartenenza (container dei livelli)
      */
     public void connectNetworkLayer(TransportLayer transportLayer, LinkLayer linkLayer, Object nodo) {
         this.linkLayer = linkLayer;
@@ -101,7 +111,7 @@ public class NetworkLayer extends Entita {
      * Viene gestito dalla classe che deve estendere il livello rete deve
      * gestire la ricezione dei pacchetti dat
      *
-     * @param m
+     * @param m Messaggio dati da gestire sul livello
      */
     public void gestisciPacchettoDati(Messaggi m) {
         System.out.println("\nE' arrivato un messaggio dati nel nodo " + ((Nodo) this.nodo).getTipo() + " ID:" + ((Nodo) this.nodo).getId() + " a livello di rete");
@@ -161,7 +171,7 @@ public class NetworkLayer extends Entita {
      * Viene gestito dalla classe che deve estendere il livello rete deve
      * gestire i messaggi di protocollo
      *
-     * @param m
+     * @param m Pacchetto protocollare da gestire
      */
     public void gestisciPacchettoProtocollo(Messaggi m) {
         if (m.getTipo_Messaggio().equals("controlla coda")) {

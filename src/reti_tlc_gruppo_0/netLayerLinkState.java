@@ -34,6 +34,7 @@ public class netLayerLinkState extends NetworkLayer {
     private boolean first_hellp_msg_received = true;
 
     private LSDB myLinkStateDb;
+    private boolean DEBUG = true;
 
     public int getTTL_LSA() {
         return TTL_LSA;
@@ -62,6 +63,10 @@ public class netLayerLinkState extends NetworkLayer {
         myLinkStateDb = new LSDB();
     }
 
+    /**
+     * Questo metodo serve per controllare l'aggiornamento delle tabelle di routing permettendo di collezionare informazioni
+     * mediante la raccolta di LSA.
+     */
     private void generateCollectingMessage() {
         Messaggi m = new Messaggi(UPDATE_RT_MSG, this, this, null, s.orologio.getCurrent_Time());
         m.isData = false;
@@ -80,7 +85,7 @@ public class netLayerLinkState extends NetworkLayer {
      * aggiornare la metrica del nodo In particolare misurando il loro ritardo
      * E2E sarà possibile aggiornare il peso nella tabella di routing
      *
-     * @param m
+     * @param m Messaggio di protocollo da gestire
      */
     @Override
     public void gestisciPacchettoProtocollo(Messaggi m) {
@@ -94,9 +99,11 @@ public class netLayerLinkState extends NetworkLayer {
             sendHelloGreetingMessage();
         } else if (m.getTipo_Messaggio().equals(this.HELLO_GREETINGS)) {
             System.out.println("\nD:" + ((Nodo) super.nodo).getTipo() + ": ID :" + ((Nodo) super.nodo).getId() + " T:" + s.orologio.getCurrent_Time() + ":Arrivato messaggio di HELLO");
-System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing pre-greetings");
+if(DEBUG)
+{
+            System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing pre-greetings");
             super.myRoutingTable.printTR();
-            
+}            
             int id_nodo_sorgente = ((Nodo) m.getNodoSorgente()).getId();
             int myId = ((Nodo)super.nodo).getId();
             if (super.myRoutingTable.controllaPresenzaLinea(id_nodo_sorgente, id_nodo_sorgente) >= 0) {
@@ -111,7 +118,7 @@ System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing pre-gr
                     tableIsChanged = true;
                 }
               
-                //LSA sarà inviato dal nodo se la topologia sarà cambiata a valle dello scattere del collecting TIMEOUT
+                //LSA sarà inviato dal nodo se la topologia sarà cambiata a valle dello scattare del collecting TIMEOUT
                 
 
             }
@@ -123,11 +130,12 @@ System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing pre-gr
                 super.myGrafo.setCosto(myId, id_nodo_sorgente, new_peso,m.getTempo_di_partenza());
                 tableIsChanged = true;
             }
-            
+if(DEBUG)
+{
             System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing post-greetings");
             super.myRoutingTable.printTR();
-System.out.println("\nD:"+s.orologio.getCurrent_Time()+" FINE GESTIONE GREETINGS");              
-
+            System.out.println("\nD:"+s.orologio.getCurrent_Time()+" FINE GESTIONE GREETINGS");              
+}
         } else if (m.getTipo_Messaggio().equals(UPDATE_RT_MSG)) {
             System.out.println("D:" + s.orologio.getCurrent_Time() + " Il nodo " + ((Nodo) nodo).getId() + " è pronto ad eseguire algoritmo per aggiornare le TR ");
             //Settata a true da un LSA ovvero da un helloGreetings che ha portato modifiche al costo
@@ -182,6 +190,7 @@ System.out.println("\nD:"+s.orologio.getCurrent_Time()+" FINE GESTIONE GREETINGS
                         m1.setData(lsa);
                         m1.isData = false;
                         m1.saliPilaProtocollare = false;
+                        m1.setSize(header+PDU_SIZE);
 
                         s.insertMessage(m1);
                     }
@@ -204,6 +213,7 @@ System.out.println("\nD:"+s.orologio.getCurrent_Time()+" FINE GESTIONE GREETINGS
             m.setNextHop(node);
             m.setNextHop_id(node.getId());
             m.shifta(super.tempo_di_processamento);
+            m.setSize(PDU_SIZE+header);
             m.isData = false;
             s.insertMessage(m);
         }
@@ -271,6 +281,7 @@ System.out.println("\nD:"+s.orologio.getCurrent_Time()+" FINE GESTIONE GREETINGS
             m.setData(lsa);
             m.isData = false;
             m.saliPilaProtocollare = false;
+            m.setSize(PDU_SIZE+header);
 
             s.insertMessage(m);
         }

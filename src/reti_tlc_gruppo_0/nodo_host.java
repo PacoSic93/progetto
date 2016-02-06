@@ -18,6 +18,7 @@ import base_simulator.layers.TransportLayer;
 import base_simulator.layers.physicalLayer;
 import base_simulator.scheduler;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  *
@@ -143,6 +144,7 @@ public class nodo_host extends Nodo {
         int numero_pckt = (int) Math.ceil(file_size / pckt_size); // Ritorna Intero superiore
         double rate = app.getRate() * 1000; //Il rate solitamente è fornito in Kbit/sec
         int packet_inter_delay = (int)((pckt_size/rate) * 1000); //riporto interdelay in ms
+        StringTokenizer st = new StringTokenizer("Ciao;da;Franco",";");
         if (app.getTipo().toLowerCase().contains("source")) {
             //TODO : CONTROLLARE TIPO TRASPORTO SE TCP INIZIALIZZARE LA TRASMISSIONE CON PROTOCOLLO TCP
             String msg_info = "INIZIO GENERAZIONE PACCHETTI ("+app.getPacket_size()+"Byte) : Da Generare:"+numero_pckt;        
@@ -159,6 +161,7 @@ public class nodo_host extends Nodo {
                 m.setNodoSorgente(this);
                 m.setApplication_port(app.getPort());
                 m.setSize(app.getPacket_size());
+                m.setData(st.nextToken());
                 m.saliPilaProtocollare = false; //Il messaggio deve partire dal livello traporto e scendere nella pila
                 tempo = tempo + packet_inter_delay; //tempo di lancio del prossimo paccketto in ms
                 s.insertMessage(m);
@@ -166,13 +169,14 @@ public class nodo_host extends Nodo {
             
             //TODO DA GESTIRE LA CLOSE CONNECTION 
             //1. creare un messaggio specifico di close connection
-            Messaggi m = new Messaggi("close connection", this, this.myTransportLayer, dest, tempo);
+            Messaggi m = new Messaggi("close connection", this, this.myTransportLayer, dest, tempo+5000);
                 current_seq_no++;
                 m.ID = current_seq_no;
                 m.isData = true;
                 m.setNodoSorgente(this);
                 m.setApplication_port(app.getPort());
                 m.setSize(app.getPacket_size());
+                
                 m.saliPilaProtocollare = false; //Il messaggio deve partire dal livello traporto e scendere nella pila
                 
                 s.insertMessage(m);

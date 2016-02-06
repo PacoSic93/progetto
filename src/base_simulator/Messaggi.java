@@ -9,11 +9,13 @@ public class Messaggi implements Cloneable {
     
     public final short NO_ACK = 0;    
     public final short WITH_ACK = 1;    
+    private short ACK_TYPE = NO_ACK;
+    
     
     private String tipo_Messaggio;    
     private Object data;
     private double packet_size;
-    private short ACK_TYPE = NO_ACK;
+    
     
     
     

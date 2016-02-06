@@ -184,11 +184,11 @@ public class Decisioner {
         }
 
         nodes = topology.getNodesExceptSource(myId);
-System.out.println("D:Dijkstra:Preparo TR del nodo "+myId+" partendo dalla lista dei nodi ");
+//System.out.println("D:Dijkstra:Preparo TR del nodo "+myId+" partendo dalla lista dei nodi ");
         while (!nodes.isEmpty()) {
 
             int dest = nodes.get(0);
-System.out.println("D:Dijkstra:Nodo sulla topologia: "+dest);            
+//System.out.println("D:Dijkstra:Nodo sulla topologia: "+dest);            
             int next_hop = -1;
             double peso = 9999;
             for (int i = 0; i < dijkstra.getN(); i++) {
@@ -216,7 +216,7 @@ System.out.println("D:Dijkstra:Nodo sulla topologia: "+dest);
             }
 
             nodes.remove(0);
-System.out.println("D:Dijkstra:Nodo sulla topologia: "+dest+" NEXT HOP: "+next_hop);               
+//System.out.println("D:Dijkstra:Nodo sulla topologia: "+dest+" NEXT HOP: "+next_hop);               
             tr.addEntry(dest, next_hop, peso);
         }
 

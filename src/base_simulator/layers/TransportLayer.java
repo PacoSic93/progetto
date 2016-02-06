@@ -57,24 +57,30 @@ public class TransportLayer extends Entita {
     protected Object nodo;
     protected ArrayList<Integer> enabled_ports = new ArrayList<Integer>();
     protected int header_size = 20; //Byte
-    private String TCP = "tcp";
-    private String UDP = "udp";
+    protected String TCP = "tcp";
+    protected String UDP = "udp";
 
-    private ArrayList<Applicazione> apps = new ArrayList<Applicazione>();
+    protected ArrayList<Applicazione> apps = new ArrayList<Applicazione>();
 
-    private String OPEN_CONNECTION = "open connection";
-    private String OPEN_CONNECTION_ANSWER = "open connection answer";
-    private String CLOSE_CONNECTION = "close connection";
+    protected String OPEN_CONNECTION = "open connection";
+    protected String OPEN_CONNECTION_ANSWER = "open connection answer";
+    protected String CLOSE_CONNECTION = "close connection";
+    protected String CLOSE_CONNECTION_ACK = "close connection ack";
 
-    private int connection_refused = 0;
-    private int connection_accepted = 0;
-    private int droppedPacket = 0;
-    private int packet_refused = 0;
-    private int active_session = 0;
+    protected String SVUOTA_CODA = "svuota coda";
 
-    final int WAITING = 1;
-    final int ACCEPTED = 2;
-    final int REFUSED = 0;
+    protected int connection_refused = 0;
+    protected int connection_accepted = 0;
+    protected int droppedPacket = 0;
+    protected int packet_refused = 0;
+    protected int active_session = 0;
+
+    protected int WAITING = 1;
+    protected int ACCEPTED = 2;
+    protected int REFUSED = 0;
+
+    protected ArrayList<Messaggi> buffer;
+    protected boolean wating_for_send_messages = false;
 
     public int getHeader_size() {
         return header_size;
@@ -87,6 +93,8 @@ public class TransportLayer extends Entita {
     public TransportLayer(scheduler s, double tempo_di_processamento) {
         super(s, "Transport Layer");
         this.tempo_di_processamento = tempo_di_processamento;
+        buffer = new ArrayList<Messaggi>();
+
     }
 
     public void connectTransportLayer(NetworkLayer networkLayer, Object nodo) {
@@ -104,34 +112,58 @@ public class TransportLayer extends Entita {
             if (isAvailable(m.getApplication_port())) {
                 System.out.println("I:" + this.getTipo() + " su nodo:" + ((Nodo) nodo).getId() + ": Arrivato messaggio applicazione con ID " + m.getID() + " Sulla porta :" + m.getApplication_port());
                 if (m.saliPilaProtocollare == false) {
+                    //TODO : I messaggi vanno cmq messi nel buffer e poi inviati rischio di mandare fuori ordine già dalla sorgente
+                    //SOLUZIONE CON UDP metto nel buffer ed invio tutto a partire dal primo pacchetto presente nel buffer, altrimenti si invierà allo scadere del timer
                     if (sessionActive(m) == ACCEPTED) {
-                        try {
-                            //Da inviare pacchetto al networkLayer
-                            m.addHeader(this.header_size);
-                            m.setNodoSorgente(nodo);
-                            m.setSorgente(this);
-                            m.setDestinazione(this.networkLayer);
-                            m.shifta(tempo_di_processamento);
-                            s.insertMessage(m);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        //Inserisco il messaggio in coda ma devo cmq inserirlo nel buffer e forzare uno svuotamento
+                        buffer.add(m);
+                        Messaggi m1 = new Messaggi(this.SVUOTA_CODA, this, this, nodo, s.orologio.getCurrent_Time());
+                        s.insertMessage(m1);
+                        
                     } else if (sessionActive(m) == WAITING) {
-                        m.shifta(1000);
-                        s.insertMessage(m);
-                    } else {
-                        //Il pacchetto è stato ricevuto
-                        m.removeHeader(this.header_size);
-                        storePayload(m);
-                        if (m.getAckType() == m.WITH_ACK) {
-                            //TODO : Devo inviare ack indietro alla sorgente
+                        //TODO : devo cambiare il metodo mettendo pacchetto nel buffer e generando un metodo svuota buffer
+
+                        buffer.add(m);
+                        if (!wating_for_send_messages) {
+                            wating_for_send_messages = true;
+                            Messaggi m1 = new Messaggi(this.SVUOTA_CODA, this, this, nodo, s.orologio.getCurrent_Time() + 1000);
+                            s.insertMessage(m1);
                         }
+                    } else {
+                        packet_refused++;
                     }
 
                 } else {
-                    packet_refused++;
+                    //Il pacchetto è stato ricevuto
+                    m.removeHeader(this.header_size);
+                    storePayload(m);
+                    if (m.getAckType() == m.WITH_ACK) {
+                        //TODO : Devo inviare ack indietro alla sorgente
+                    }
+
                 }
             }
+        } else if (m.getTipo_Messaggio().toLowerCase().equals(SVUOTA_CODA)) {
+//Gestione tipo UDP ; Per la gestione TCP implementare meccanismo di Congestion Avoidance            
+            wating_for_send_messages = false;
+            double tempo = 0;
+            for(Object obj : buffer)
+            {
+                Messaggi m1 = (Messaggi)obj;
+                try {
+                            //Da inviare pacchetto al networkLayer
+                            m1.addHeader(this.header_size);
+                            m1.setNodoSorgente(nodo);
+                            m1.setSorgente(this);
+                            m1.setDestinazione(this.networkLayer);
+                            m1.shifta(tempo_di_processamento);
+                            s.insertMessage(m1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                buffer.remove(obj);
+            }
+
         } else if (m.getTipo_Messaggio().toLowerCase().equals(OPEN_CONNECTION)) {
             boolean res = false;
             if (isAvailable(m.getApplication_port())) {
@@ -144,6 +176,8 @@ public class TransportLayer extends Entita {
                 //return ACCEPTED to request host and open an application receiver
                 Applicazione a = new Applicazione();
                 a.setPort(m.getApplication_port());
+                a.setStatus(this.ACCEPTED);
+                apps.add(a);
             }
 
             m.setTipo_Messaggio(OPEN_CONNECTION_ANSWER);
@@ -170,6 +204,62 @@ public class TransportLayer extends Entita {
         } else if (m.getTipo_Messaggio().toLowerCase().equals(this.CLOSE_CONNECTION)) {
             //TODO: DA INVIARE MESSAGGIO DI CHIUSURA CONNESSIONE
             //ripulire la connessione sul nodo liberando risorse porta e app
+            if (m.saliPilaProtocollare == false) {
+                if (sessionActive(m) == ACCEPTED) {
+                    m.setSorgente(this);
+                    m.setDestinazione(this.networkLayer);
+                    m.addHeader(header_size);
+                    m.shifta(tempo_di_processamento);
+                    m.setNodoSorgente(nodo);
+                    s.insertMessage(m);
+                } else if (sessionActive(m) == WAITING) {
+                    m.shifta(1000);
+                    s.insertMessage(m);
+                } else {
+                    this.packet_refused++;
+                }
+            } else {
+                //Il messaggio è arrivato dalla sorgente sulla destinazione
+                //Possiamo stampare il messaggio completo ricevuto
+                System.out.println("L'applicazione ha terminato l'invio e ho ricevuto dal nodo :" + ((Nodo) m.getNodoSorgente()).getId() + "il seguente messaggio");
+                Applicazione a = null;
+                for (Object obj : apps) {
+                    a = (Applicazione) obj;
+                    if (a.getPort() == m.getApplication_port()) {
+                        System.out.println("Msg:" + a.getMessage());
+                        break;
+                    }
+                }
+                if (a != null) {
+                    apps.remove(a);
+                }
+
+                //Chiudiamo la porta
+                closePort(m.getApplication_port());
+                m.setDestinazione(this.networkLayer);
+                m.saliPilaProtocollare = false;
+                m.setNodoDestinazione(m.getNodoSorgente());
+                m.setNodoSorgente(this.nodo);
+                m.shifta(tempo_di_processamento);
+                m.setTipo_Messaggio(CLOSE_CONNECTION_ACK);
+                s.insertMessage(m);
+
+            }
+        } else if (m.getTipo_Messaggio().toLowerCase().equals(this.CLOSE_CONNECTION_ACK)) {
+            //Alla ricezione dell'ack possiamo distruggere applicazione e liberare la porta anche sulla sorgente
+            Applicazione a = null;
+            for (Object obj : apps) {
+                a = (Applicazione) obj;
+                if (a.getPort() == m.getApplication_port()) {
+                    break;
+                }
+            }
+            if (a != null) {
+                apps.remove(a);
+            }
+
+            //Chiudiamo la porta
+            closePort(m.getApplication_port());
         }
 
     }
@@ -181,6 +271,22 @@ public class TransportLayer extends Entita {
                 res = true;
                 break;
             }
+        }
+        return res;
+    }
+
+    private boolean closePort(int application_port) {
+        boolean res = false;
+        int count = -1;
+        for (Object port : enabled_ports) {
+            count++;
+            if (application_port == ((Integer) port)) {
+                res = true;
+                break;
+            }
+        }
+        if (res == true) {
+            enabled_ports.remove(count);
         }
         return res;
     }
@@ -202,6 +308,7 @@ public class TransportLayer extends Entita {
             }
         }
         if (status == -1) {
+            status = WAITING;
             a.setStatus(WAITING);
             a.setPort(m.getApplication_port());
             apps.add(a);
@@ -213,6 +320,7 @@ public class TransportLayer extends Entita {
             m1.setNodoSorgente(nodo);
             m1.shifta(0);
             m1.setApplication_port(m.getApplication_port());
+            m1.setSize(m.getSize());
 
             s.insertMessage(m1);
 
