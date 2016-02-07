@@ -16,62 +16,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Questa classe permette di memorizzare i dati che arrivano o devono andare al 
- * livello applicazione. In particolare, è molto utile nella ricostruzione dei frammenti
- * @author afsantamaria
- */
-class Applicazione {
 
-    int port = 0;
-    byte message[] = new byte[0];
-    int status = -1;
-
-    public Applicazione() {
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public byte[] getMessage() {
-        return message;
-    }
-
-    /**
-     * Metodo per la ricostruzione dei frammenti della sessione applicazione
-     * i dati arrivano attraverso la rete e poi vengono ricostruiti da questo metodo
-     * 
-     * @param message - byte array contenente frammenti dell'informazione da utilizzare
-     * a livello applicazione
-     */
-    public void setMessage(byte message[]) {
-        
-        int new_size = this.message.length + message.length;        
-        
-        byte appo[] = new byte[this.message.length];
-        System.arraycopy(this.message, 0, appo, 0, this.message.length);
-        
-        this.message = new byte[new_size];        
-        System.arraycopy(appo, 0, this.message, 0, appo.length);
-        
-        System.arraycopy(message, 0, this.message, appo.length, message.length);
-
-    }
-
-    int getStatus() {
-        return this.status;
-    }
-
-    void setStatus(int stato) {
-        this.status = stato;
-    }
-
-}
 
 /**
  * Livello Trasporto : Tutti i dati sono trasferiti utilizzando connessioni non sicure
@@ -88,6 +33,8 @@ public class TransportLayer extends Entita {
     protected Object nodo;
     protected ArrayList<Integer> enabled_ports = new ArrayList<Integer>();
     protected int header_size = 20; //Byte
+    protected int base_mss = 536; //Byte
+    
     protected String TCP = "tcp";
     protected String UDP = "udp";
 
@@ -97,7 +44,8 @@ public class TransportLayer extends Entita {
     protected String OPEN_CONNECTION_ANSWER = "open connection answer";
     protected String CLOSE_CONNECTION = "close connection";
     protected String CLOSE_CONNECTION_ACK = "close connection ack";
-
+    protected String APPLICATION_MSG = "applicazione";
+     protected String APPLICATION_MSG_ACK = "applicazione ack";
     protected String SVUOTA_CODA = "svuota coda";
 
     protected int connection_refused = 0;
@@ -112,6 +60,7 @@ public class TransportLayer extends Entita {
 
     protected ArrayList<Messaggi> buffer;
     protected boolean wating_for_send_messages = false;
+    
 
     public int getHeader_size() {
         return header_size;
@@ -139,7 +88,9 @@ public class TransportLayer extends Entita {
 
     @Override
     public void Handler(Messaggi m) {
-        if (m.getTipo_Messaggio().toLowerCase().equals("applicazione")) {
+        if (m.getTipo_Messaggio().toLowerCase().equals(APPLICATION_MSG)) {
+            //N.B. : La porta è messa ad enabled dal file di configurazione altrimenti va creata la gestione per l'apertura della porta
+            //da programma
             if (isAvailable(m.getApplication_port())) {
                 System.out.println("I:" + this.getTipo() + " su nodo:" + ((Nodo) nodo).getId() + ": Arrivato messaggio applicazione con ID " + m.getID() + " Sulla porta :" + m.getApplication_port());
                 if (m.saliPilaProtocollare == false) {
@@ -169,7 +120,7 @@ public class TransportLayer extends Entita {
                     m.removeHeader(this.header_size);
                     storePayload(m);
                     if (m.getAckType() == m.WITH_ACK) {
-                        //TODO : Devo inviare ack indietro alla sorgente
+                        //TODO : Devo inviare ack indietro alla sorgente se previsto
                     }
 
                 }
@@ -203,8 +154,9 @@ public class TransportLayer extends Entita {
                 res = true;
                 this.enablePort(m.getApplication_port());
                 connection_accepted++;
+                m.removeHeader(header_size);
                 //return ACCEPTED to request host and open an application receiver
-                Applicazione a = new Applicazione();
+                Applicazione a = new Applicazione(m.getSize());
                 a.setPort(m.getApplication_port());
                 a.setStatus(this.ACCEPTED);
                 apps.add(a);
@@ -228,8 +180,10 @@ public class TransportLayer extends Entita {
                 start_sending(m.getApplication_port());
             }
         } else if (m.getTipo_Messaggio().toLowerCase().equals(TCP)) {
+            //Deprecato estendere la classe per implmentare TCP
 
         } else if (m.getTipo_Messaggio().toLowerCase().equals(UDP)) {
+            //UDP è possibile utilizzarlo utilizzando questa classe
 
         } else if (m.getTipo_Messaggio().toLowerCase().equals(this.CLOSE_CONNECTION)) {
 
@@ -295,14 +249,11 @@ public class TransportLayer extends Entita {
             }
         } else if (m.getTipo_Messaggio().toLowerCase().equals(this.CLOSE_CONNECTION_ACK)) {
             //Alla ricezione dell'ack possiamo distruggere applicazione e liberare la porta anche sulla sorgente
-            Applicazione a = null;
-            for (Object obj : apps) {
-                a = (Applicazione) obj;
-                if (a.getPort() == m.getApplication_port()) {
-                    break;
-                }
-            }
+            Applicazione a = this.getApplication(m.getApplication_port());
+            
             if (a != null) {
+                //TODO : GET STATS prima di rimuovere app
+                a.stampaStatistiche(((Nodo)nodo).getId());
                 apps.remove(a);
             }
 
@@ -312,7 +263,13 @@ public class TransportLayer extends Entita {
 
     }
 
-    private boolean isAvailable(int application_port) {
+    /**
+     * Questo metodo ritorna true se la porta è attiva e quindi è possibile inviare
+     * e rivevere messaggi su tale porta
+     * @param application_port - porta da verificare
+     * @return true se la porta è attiva false altrimenti
+     */
+    protected boolean isAvailable(int application_port) {
         boolean res = false;
         for (Object port : enabled_ports) {
             if (application_port == ((Integer) port)) {
@@ -323,6 +280,11 @@ public class TransportLayer extends Entita {
         return res;
     }
 
+    /**
+     * Chiude la porta se attiva per future connessioni
+     * @param application_port
+     * @return true se la porta era attiva false altrimenti
+     */
     private boolean closePort(int application_port) {
         boolean res = false;
         int count = -1;
@@ -339,22 +301,36 @@ public class TransportLayer extends Entita {
         return res;
     }
 
-    private void storePayload(Messaggi m) {
+    /**
+     * Memorizza il payload del messaggio appplicazione
+     * @param m : Messaggio applicazione da memorizzare; i dati sono contenuti nel campo Data del messaggio
+     */
+    protected void storePayload(Messaggi m) {
         if (m.getData() != null) {
+            
             for (Object obj : apps) {
                 if (((Applicazione) obj).getPort() == m.getApplication_port()) {
                     ((Applicazione) obj).setMessage((byte[]) m.getData());
+                    break;
                 }
             }
         }
     }
 
-    private int sessionActive(Messaggi m) {
+    /**
+     * Controlla se la sessione è attiva e ritorna lo stato
+     * @param m messaggio sul quale controllare la sessione di riferimento
+     * @return Stato della sessione WAITING se la sessione non era ancora stata attivata
+     * aspettiamo il ritorno dalla destinazione che verifica se è possibile attivare la connessione
+     * Se Refused non si può attivare la connessione
+     */
+    protected int sessionActive(Messaggi m) {
         int status = -1;
-        Applicazione a = new Applicazione();
+        Applicazione a = new Applicazione(m.getSize());
         for (Object obj : apps) {
             if (((Applicazione) obj).getPort() == m.getApplication_port()) {
                 status = ((Applicazione) obj).getStatus();
+                break;
             }
         }
         if (status == -1) {
@@ -378,13 +354,33 @@ public class TransportLayer extends Entita {
         return status;
     }
 
-    private void start_sending(int application_port) {
+    /**
+     * Metodo che permette l'inizio delle attività della sessione sulla porta indicata
+     * 
+     * @param application_port 
+     */
+    protected void start_sending(int application_port) {
         for (Object obj : apps) {
             Applicazione a = (Applicazione) obj;
             if (((Applicazione) obj).getPort() == application_port) {
                 ((Applicazione) obj).setStatus(ACCEPTED);
+                break;
             }
         }
+    }
+    
+    protected Applicazione getApplication(int application_port)
+    {
+        Applicazione a = null;
+        for(Object o:apps)
+        {
+            if(((Applicazione)o).getPort() == application_port)
+            {
+                a = (Applicazione)o;
+                break;
+            }
+        }
+        return a;
     }
 
 }

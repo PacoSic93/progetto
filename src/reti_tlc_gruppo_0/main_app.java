@@ -365,7 +365,7 @@ public class main_app extends javax.swing.JFrame {
                 physicalLayer pl = new physicalLayer(s, 0.0);
                 LinkLayer ll = new LinkLayer(s, 0.0);
                 netLayerLinkState nl = new netLayerLinkState(s, 0.0,grafo);
-                TransportLayer tl = new TransportLayer(s,0.0);
+                tcpTransportLayer tl = new tcpTransportLayer(s,0.0);
 
                 
                 nodo_host nh = new nodo_host(s, id, pl, ll, nl,tl, null, "nodo_host", gateway);
@@ -425,7 +425,9 @@ public class main_app extends javax.swing.JFrame {
                     double pckt_size = Double.valueOf(app_item.getAttributeValue("pckt_size"));
                     String payload = app_item.getAttributeValue("payload");
                     String filePath = app_item.getAttributeValue("file");
+                    
                     Applicazione app = new Applicazione(rate,TON,TOFF,port,dest,size,pckt_size,tipo,start,payload,filePath); 
+                    
                     if(app.getTipo().equals(app.SIMPLE_APP_TCP))
                     {
                         //1. Aggiungo applicazione solo se sorgente abilitando la porta

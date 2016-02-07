@@ -22,6 +22,7 @@ public class Applicazione {
      int start;
      double packet_size;
      String payload;
+     
 
     public String getFile() {
         return file;

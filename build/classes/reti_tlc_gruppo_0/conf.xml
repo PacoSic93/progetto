@@ -40,10 +40,11 @@ and open the template in the editor.
         file : Se indicato e il simulatore identifica il file diventa il dato da trasferire 
                Il campo size non sarà più utilizzato dal simulatore ma sarà sostituito con il valore reale del file
         payload : non ancora utilizzato
+        
         -->
 
         <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="1" size="0.001500" pckt_size="1460.0" start="30000" 
-            payload="Trasferimento file" file="src/reti_tlc_gruppo_0/conf.xml"
+            payload="Trasferimento file" file="src/reti_tlc_gruppo_0/conf.xml" 
         >
             
         </application>

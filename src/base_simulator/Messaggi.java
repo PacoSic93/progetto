@@ -15,6 +15,24 @@ public class Messaggi implements Cloneable {
     private String tipo_Messaggio;    
     private Object data;
     private double packet_size;
+    public int receiveWin;
+
+    /**
+     * Get della dimensione della finestra disponibile sul ricevitore per garantire ordine dei pacchetti
+     * @return dimensione disponibile sul ricevitore in Byte
+     */
+    public int getReceiveWin() {
+        return receiveWin;
+    }
+
+    /**
+     * Setta il parametro per reperire informazioni sulla disponibilità del ricevitore a ricevere un determinato 
+     * numero di MSS la finestra viene riportata in Byte
+     * @param receiveWin 
+     */
+    public void setReceiveWin(int receiveWin) {
+        this.receiveWin = receiveWin;
+    }
     
     
     
