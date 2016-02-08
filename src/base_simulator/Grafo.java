@@ -92,8 +92,10 @@ public class Grafo
     }
 
     public boolean setCosto(int source, int dest,double costo, double time) {
-        if(time > age.get(source).get(dest) || 
-          (rami.get(source).get(dest) == 0))
+                
+        if(time >= age.get(source).get(dest) && (costo != rami.get(source).get(dest)))
+//                || 
+//          ((rami.get(source).get(dest) == 0) && costo > 0))
         {
            rami.get(source).set(dest, costo);
            age.get(source).set(dest, time);

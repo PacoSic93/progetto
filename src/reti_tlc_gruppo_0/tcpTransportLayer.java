@@ -17,12 +17,25 @@ import base_simulator.scheduler;
  */
 public class tcpTransportLayer extends TransportLayer {
 
+    private int AvailableSpaceForSession = 0; //Byte
+
+   
+
     //Questo campo va messo nell'applicazione
     public tcpTransportLayer(scheduler s, double tempo_di_processamento) {
         super(s, tempo_di_processamento);
-
+        
     }
 
+     public int getAvailableSpaceForSession() {
+        return AvailableSpaceForSession;
+    }
+
+    public void setAvailableSpaceForSession(int AvailableSpaceForSession) {
+        this.AvailableSpaceForSession = AvailableSpaceForSession;
+    }
+    
+    @Override
     public void Handler(Messaggi m) {
         if (m.getTipo_Messaggio().toLowerCase().equals(SVUOTA_CODA)) {
 
@@ -50,6 +63,7 @@ public class tcpTransportLayer extends TransportLayer {
                                 m1.setNodoSorgente(nodo);
                                 m1.setSorgente(this);
                                 m1.setDestinazione(this.networkLayer);
+                                m1.setTempo_spedizione(s.orologio);
                                 m1.shifta(tempo_di_processamento);
                                 s.insertMessage(m1);
 
@@ -58,37 +72,48 @@ public class tcpTransportLayer extends TransportLayer {
                             }
                         }
                     }
-
+                    int counter = 0;
                     for (Object obj : buffer) {
                         Messaggi m1 = (Messaggi) obj;
 
-                        if (byte_inviati <= a.getCWND()) {
+                        if (byte_inviati < a.getCWND()) {
                             //Da inviare pacchetto al networkLayer
-                            m1.addHeader(this.header_size);
+                            
                             m1.setNodoSorgente(nodo);
                             m1.setSorgente(this);
                             m1.setDestinazione(this.networkLayer);
+                            
+                            m1.setTempo_spedizione(s.orologio);
                             m1.shifta(tempo_di_processamento);
+                            byte_inviati += m1.getSize();
+                            m1.addHeader(this.header_size);
                             s.insertMessage(m1);
 
                             a.lastWindow.add(m1);
-                            buffer.remove(obj);
-                            byte_inviati += m1.getSize();
+                            counter++;
+                            
                         } else {
                             break;
                         }
+                        
+                        
                     }
+                    
+                    for(int i = 0; i<counter;i++)
+                           buffer.remove(0);
 
-                    a.setLastWindowSize(a.lastWindow.size());
+                    if(a.lastWindow.size() > 0){
+                        a.setLastWindowSize(a.lastWindow.size());
 
-                    a.setIsWaitingForAcks(true);
+                        a.setIsWaitingForAcks(true);
 
-                    Messaggi m1 = new Messaggi(this.SVUOTA_CODA, this, this, nodo, s.orologio.getCurrent_Time());
-                    m1.setApplication_port(m.getApplication_port());
+                        Messaggi m1 = new Messaggi(this.SVUOTA_CODA, this, this, nodo, s.orologio.getCurrent_Time());
+                        m1.setApplication_port(m.getApplication_port());
 
-                    m1.shifta(a.getRTO());
+                        m1.shifta(a.getRTO());
 
-                    s.insertMessage(m1);
+                        s.insertMessage(m1);
+                    }
 
                 } else {
                     Messaggi m1 = new Messaggi(this.SVUOTA_CODA, this, this, nodo, s.orologio.getCurrent_Time());
@@ -108,6 +133,7 @@ public class tcpTransportLayer extends TransportLayer {
                     //SOLUZIONE CON UDP metto nel buffer ed invio tutto a partire dal primo pacchetto presente nel buffer, altrimenti si invierà allo scadere del timer
                     if (sessionActive(m) == ACCEPTED) {
                         //Inserisco il messaggio in coda ma devo cmq inserirlo nel buffer e forzare uno svuotamento
+                        
                         buffer.add(m);
                         Applicazione a = getApplication(m.getApplication_port());
                         if (!a.isWaitingForAcks()) {
@@ -119,6 +145,7 @@ public class tcpTransportLayer extends TransportLayer {
 
                     } else if (sessionActive(m) == WAITING) {
                         //Sono in attesa del receiver per attivare la connessione
+                        
                         buffer.add(m);
 
                         Applicazione a = getApplication(m.getApplication_port());
@@ -154,7 +181,7 @@ public class tcpTransportLayer extends TransportLayer {
                 Messaggi m1 = new Messaggi(this.SVUOTA_CODA, this, this, nodo, s.orologio.getCurrent_Time());
                 m1.setApplication_port(m.getApplication_port());
                 s.insertMessage(m1);
-            }
+            }        
         } else if (m.getTipo_Messaggio().toLowerCase().equals(OPEN_CONNECTION)) {
             boolean res = false;
             Applicazione a = null;
@@ -165,11 +192,14 @@ public class tcpTransportLayer extends TransportLayer {
                 res = true;
                 m.removeHeader(header_size);
                 a = new Applicazione(m.getSize());
+                
                 this.enablePort(m.getApplication_port());
+                
                 connection_accepted++;
                 //return ACCEPTED to request host and open an application receiver
 
                 a.setPort(m.getApplication_port());
+                a.setRecvWin(this.AvailableSpaceForSession);
                 a.setStatus(ACCEPTED);
                 apps.add(a);
             }
@@ -243,7 +273,7 @@ public class tcpTransportLayer extends TransportLayer {
 
         Applicazione a = getApplication(m.getApplication_port());
         if (a != null) {
-            a.setRecvWin(m.receiveWin, s.orologio.getCurrent_Time());
+            a.setRecvWin(m.receiveWin);
         }
     }
 

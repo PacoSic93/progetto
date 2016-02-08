@@ -69,7 +69,7 @@ public class LSDB {
             for (int i = 0; i < topologia.getN(); i++) {
                 for (int j = 0; j < topologia.getN(); j++) {
                     if (topologia.getCosto(j, j)>=0.0){
-                        res = g.setCosto(i, j, topologia.getCosto(i, j),topologia.getAged(i,j));
+                        res |= g.setCosto(i, j, topologia.getCosto(i, j),topologia.getAged(i,j));
                     }
                 }
             }

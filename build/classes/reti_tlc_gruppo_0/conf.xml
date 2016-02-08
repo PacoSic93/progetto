@@ -40,10 +40,10 @@ and open the template in the editor.
         file : Se indicato e il simulatore identifica il file diventa il dato da trasferire 
                Il campo size non sarà più utilizzato dal simulatore ma sarà sostituito con il valore reale del file
         payload : non ancora utilizzato
-        
+        availableSpaceForSession : Dimensione della finestra di ricezione in numero di MSS
         -->
 
-        <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="1" size="0.001500" pckt_size="1460.0" start="30000" 
+        <application type="simple_source_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="1" size="0.001500" pckt_size="1460.0" availableSpaceForSession = "50" start="30000" 
             payload="Trasferimento file" file="src/reti_tlc_gruppo_0/conf.xml" 
         >
             
@@ -59,7 +59,9 @@ and open the template in the editor.
         <!--
         TODO: Questo campo non è necessario per una destinazione da eliminare
         -->
-        <application type="simple_receiver_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="2" size="5" pckt_size="1460.0" start="30000" >
+        <application type="simple_receiver_tcp" rate="100.0" TON="100" TOFF="0" port="1234" dest="2" size="5" pckt_size="1460.0" availableSpaceForSession = "50"
+                     start="30000" 
+        >
         </application>
         
         <interfaces>

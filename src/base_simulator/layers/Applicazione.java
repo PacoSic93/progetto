@@ -50,7 +50,7 @@ public class Applicazione {
     protected int RTO = 1000;
     protected int maxwin;
     protected int lastWindowSize = 1;
-    private int receivedAck = 0;
+    
     private boolean isWaitingForAcks = false;
     private double sent_packet = 0;
     private double received_ack = 0;
@@ -124,7 +124,7 @@ public class Applicazione {
 
             if (((Messaggi) obj).getID() == msg_id) {
                 lastWindow.remove(obj);
-                received_ack++;
+                
                 break;
             }
         }
@@ -140,6 +140,7 @@ public class Applicazione {
 
     public void setLast_seq_no_received(int last_seq_no_received) {
         this.last_seq_no_received = last_seq_no_received;
+        received_ack++;
         for (Object obj : lastWindow) {
             if (((Messaggi) obj).getID() == last_seq_no_received) {
                 lastWindow.remove(obj);
@@ -152,8 +153,8 @@ public class Applicazione {
         
         CWND = (int)MSS;
         ADVWIN = 146000; //byte
-        RecvWin = 1;
-        SSThreshold = 2 ^ 15;
+        RecvWin = (int)MSS;
+        SSThreshold = 65535; //Byte (2^15 - 1
         scaleFactor = 1;
         maxwin = (int)MSS;
         this.MSS = MSS;
@@ -212,6 +213,21 @@ public class Applicazione {
         
         setCWND(CWND,tempo);
 
+    }
+    /**
+     * Questo meto è utilizzato inizialmente per il settare la RecvWin con il Three-way
+     * Quando ricevo ack della open connection
+     * @param RecvWin 
+     */
+    public void setRecvWin(int RecvWin)
+    {
+        this.RecvWin = RecvWin;
+        
+        if (RecvWin < ADVWIN) {
+            maxwin = RecvWin;
+        } else {
+            maxwin = ADVWIN;
+        }
     }
 
     public double getMSS() {
@@ -280,7 +296,7 @@ public class Applicazione {
     }
 
     public void setReceivedAck(int acks) {
-        this.receivedAck = acks;
+        this.received_ack = acks;
     }
 
     public void setIsWaitingForAcks(boolean isWaiting) {
@@ -288,7 +304,7 @@ public class Applicazione {
     }
 
     public double getReceivedAck() {
-        return this.receivedAck;
+        return this.received_ack;
     }
 
     public boolean isWaitingForAcks() {

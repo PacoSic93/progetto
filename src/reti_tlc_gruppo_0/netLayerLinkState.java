@@ -10,7 +10,6 @@ import base_simulator.Messaggi;
 import base_simulator.Nodo;
 import base_simulator.layers.NetworkLayer;
 import base_simulator.scheduler;
-import base_simulator.tabellaRouting;
 import java.util.ArrayList;
 
 /**
@@ -19,9 +18,9 @@ import java.util.ArrayList;
  */
 public class netLayerLinkState extends NetworkLayer {
 
-    final String HELLO_GREETINGS = "hello_pckt";
-    final String HELLO_TIMEOUT_MSG = "hello_timeout";
-    private String LSA_MSG = "LSA";
+    private final String HELLO_GREETINGS = "hello_pckt";
+    private final String HELLO_TIMEOUT_MSG = "hello_timeout";
+    private final String LSA_MSG = "LSA";
 
     final int HELLO_TIMEOUT = 15000;
     int TTL_LSA = 1;
@@ -64,8 +63,9 @@ public class netLayerLinkState extends NetworkLayer {
     }
 
     /**
-     * Questo metodo serve per controllare l'aggiornamento delle tabelle di routing permettendo di collezionare informazioni
-     * mediante la raccolta di LSA.
+     * Questo metodo serve per controllare l'aggiornamento delle tabelle di
+     * routing permettendo di collezionare informazioni mediante la raccolta di
+     * LSA.
      */
     private void generateCollectingMessage() {
         Messaggi m = new Messaggi(UPDATE_RT_MSG, this, this, null, s.orologio.getCurrent_Time());
@@ -92,50 +92,44 @@ public class netLayerLinkState extends NetworkLayer {
         //Inserire qui i dati per statistiche
         super.nr_pkt_prt++;
         super.delay_medio_pkt_prt += s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
-        
-        
+
         if (m.getTipo_Messaggio().equals(HELLO_TIMEOUT_MSG)) {
             System.out.println("D:" + ((Nodo) super.nodo).getTipo() + ": T:" + s.orologio.getCurrent_Time() + ": Arrivato messagio di generazione HELLO");
             sendHelloGreetingMessage();
         } else if (m.getTipo_Messaggio().equals(this.HELLO_GREETINGS)) {
             System.out.println("\nD:" + ((Nodo) super.nodo).getTipo() + ": ID :" + ((Nodo) super.nodo).getId() + " T:" + s.orologio.getCurrent_Time() + ":Arrivato messaggio di HELLO");
-if(DEBUG)
-{
-            System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing pre-greetings");
-            super.myRoutingTable.printTR();
-}            
+            if (DEBUG) {
+                System.out.println("D:" + s.orologio.getCurrent_Time() + " Tabella di routing pre-greetings");
+                super.myRoutingTable.printTR();
+            }
             int id_nodo_sorgente = ((Nodo) m.getNodoSorgente()).getId();
-            int myId = ((Nodo)super.nodo).getId();
+            int myId = ((Nodo) super.nodo).getId();
             if (super.myRoutingTable.controllaPresenzaLinea(id_nodo_sorgente, id_nodo_sorgente) >= 0) {
                 //Vuol dire che la linea è gia presente, dobbiamo aggiornare il peso
                 double new_peso = super.s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
-                boolean esito = super.myRoutingTable.setPeso(id_nodo_sorgente, id_nodo_sorgente, new_peso);
-                
-                super.myGrafo.setCosto( myId ,id_nodo_sorgente, new_peso,m.getTempo_di_partenza());
-                
-                if (esito == true) {
-                    //Setto questa variabile a true perchè indica al livello rete che la tabella è cambiata
+//                boolean esito = super.myRoutingTable.setPeso(id_nodo_sorgente, id_nodo_sorgente, new_peso);
+
+                boolean esito = super.myGrafo.setCosto(myId, id_nodo_sorgente, new_peso, m.getTempo_di_partenza());
+
+                //Setto questa variabile a true perchè indica al livello rete che la tabella è cambiata
+                if(esito == true)
+                {
                     tableIsChanged = true;
                 }
-              
-                //LSA sarà inviato dal nodo se la topologia sarà cambiata a valle dello scattare del collecting TIMEOUT
-                
 
-            }
-            else
-            {
+                //LSA sarà inviato dal nodo se la topologia sarà cambiata a valle dello scattare del collecting TIMEOUT
+            } else {
                 //Il vicino non è presente nel grafo dobbiamo aggiungerlo
                 double new_peso = super.s.orologio.getCurrent_Time() - m.getTempo_di_partenza();
-                super.myRoutingTable.addEntry(id_nodo_sorgente, id_nodo_sorgente, new_peso);
-                super.myGrafo.setCosto(myId, id_nodo_sorgente, new_peso,m.getTempo_di_partenza());
+//                super.myRoutingTable.addEntry(id_nodo_sorgente, id_nodo_sorgente, new_peso);
+                super.myGrafo.setCosto(myId, id_nodo_sorgente, new_peso, m.getTempo_di_partenza());
                 tableIsChanged = true;
             }
-if(DEBUG)
-{
-            System.out.println("D:"+s.orologio.getCurrent_Time()+" Tabella di routing post-greetings");
-            super.myRoutingTable.printTR();
-            System.out.println("\nD:"+s.orologio.getCurrent_Time()+" FINE GESTIONE GREETINGS");              
-}
+            if (DEBUG) {
+                System.out.println("D:" + s.orologio.getCurrent_Time() + " Tabella di routing post-greetings");
+                super.myRoutingTable.printTR();
+                System.out.println("\nD:" + s.orologio.getCurrent_Time() + " FINE GESTIONE GREETINGS");
+            }
         } else if (m.getTipo_Messaggio().equals(UPDATE_RT_MSG)) {
             System.out.println("D:" + s.orologio.getCurrent_Time() + " Il nodo " + ((Nodo) nodo).getId() + " è pronto ad eseguire algoritmo per aggiornare le TR ");
             //Settata a true da un LSA ovvero da un helloGreetings che ha portato modifiche al costo
@@ -190,7 +184,7 @@ if(DEBUG)
                         m1.setData(lsa);
                         m1.isData = false;
                         m1.saliPilaProtocollare = false;
-                        m1.setSize(header+PDU_SIZE);
+                        m1.setSize(header + PDU_SIZE);
 
                         s.insertMessage(m1);
                     }
@@ -213,7 +207,7 @@ if(DEBUG)
             m.setNextHop(node);
             m.setNextHop_id(node.getId());
             m.shifta(super.tempo_di_processamento);
-            m.setSize(PDU_SIZE+header);
+            m.setSize(PDU_SIZE + header);
             m.isData = false;
             s.insertMessage(m);
         }
@@ -264,16 +258,15 @@ if(DEBUG)
     private void sendLSA() {
         seq_no++;
         Nodo myNodo = ((Nodo) super.nodo);
-        
 
 //Devo inviare il messaggio in flooding sui nodi adiacenti
         ArrayList<Integer> nodes = super.myRoutingTable.getNeighbours();
         for (Object node_id : nodes) {
             LSA_packet lsa = new LSA_packet(seq_no, myNodo.getId(),
-                myNodo.getId(),
-                this.TTL_LSA,
-                super.myGrafo);
-            
+                    myNodo.getId(),
+                    this.TTL_LSA,
+                    super.myGrafo);
+
             Nodo n = myNodo.getInfo().getNodo((Integer) node_id);
             Messaggi m = new Messaggi(LSA_MSG, this, super.linkLayer, n, s.orologio.getCurrent_Time());
             m.setNextHop_id((Integer) node_id);
@@ -281,7 +274,7 @@ if(DEBUG)
             m.setData(lsa);
             m.isData = false;
             m.saliPilaProtocollare = false;
-            m.setSize(PDU_SIZE+header);
+            m.setSize(PDU_SIZE + header);
 
             s.insertMessage(m);
         }
